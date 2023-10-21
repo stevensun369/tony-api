@@ -18,6 +18,7 @@ var Ctx = context.Background()
 
 var Users *mongo.Collection
 var Wallets *mongo.Collection
+var Products *mongo.Collection
 
 func GetCollection(col string, client *mongo.Client) (*mongo.Collection) {
   return client.Database("dev").Collection(col)
@@ -37,6 +38,7 @@ func InitDB(MongoURI string) {
 
   Users = GetCollection("users", MongoClient)
   Wallets = GetCollection("wallets", MongoClient)
+  Products = GetCollection("products", MongoClient)
 
   fmt.Println("connected to MongoDB")
 }

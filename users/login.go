@@ -24,7 +24,7 @@ func login(r fiber.Router) {
     phone := body["phone"]
 
     // if user with phone doesn't exist
-    if (models.CheckUser(bson.M{"phone": phone})) {
+    if (models.Check(bson.M{"phone": phone})) {
       // gen a code
       code := utils.GenCode(4)
 
@@ -87,7 +87,7 @@ func login(r fiber.Router) {
     // to use in the password authentication phase
     user := models.User {}
     user.Phone = body["phone"]
-    token, err := user.GenUserToken()
+    token, err := user.GenToken()
     if err != nil {
       return utils.MessageError(c, err.Error())
     }
@@ -108,7 +108,7 @@ func login(r fiber.Router) {
       return utils.MessageError(c, "Parolă incorectă.")
     }
 
-    token, err := user.GenUserToken()
+    token, err := user.GenToken()
     if err != nil {
       return utils.MessageError(c, err.Error())
     }

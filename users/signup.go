@@ -24,7 +24,7 @@ func signup(r fiber.Router) {
     phone := body["phone"]
 
     // if user with phone doesn't exist
-    if (!models.CheckUser(bson.M{"phone": phone})) {
+    if (!models.Check(bson.M{"phone": phone})) {
       // gen a code
       code := utils.GenCode(4)
 
@@ -85,10 +85,10 @@ func signup(r fiber.Router) {
 
     // build & save a user
     user := models.User {}
-    user.CreateUser(body["phone"])
+    user.Create(body["phone"])
 
     // get a token
-    token, err := user.GenUserToken()
+    token, err := user.GenToken()
   
     if err != nil {
       return utils.MessageError(c, err.Error())
@@ -116,7 +116,7 @@ func signup(r fiber.Router) {
     }
     
     // generating token
-    token, err := user.GenUserToken()
+    token, err := user.GenToken()
     if err != nil {
       return utils.MessageError(c, err.Error())
     }
@@ -142,7 +142,7 @@ func signup(r fiber.Router) {
     }
     
     // generating token
-    token, err := user.GenUserToken()
+    token, err := user.GenToken()
     if err != nil {
       return utils.MessageError(c, err.Error())
     }

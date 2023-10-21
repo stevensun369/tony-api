@@ -6,6 +6,7 @@ require (
 	github.com/brianvoe/sjwt v0.5.1
 	github.com/go-redis/redis/v8 v8.11.5
 	github.com/gofiber/fiber/v2 v2.50.0
+	github.com/twilio/twilio-go v1.15.0
 	go.mongodb.org/mongo-driver v1.12.1
 	golang.org/x/crypto v0.7.0
 )
@@ -24,7 +25,6 @@ require (
 	github.com/montanaflynn/stats v0.0.0-20171201202039-1bf9dbcd8cbe // indirect
 	github.com/pkg/errors v0.9.1 // indirect
 	github.com/rivo/uniseg v0.2.0 // indirect
-	github.com/twilio/twilio-go v1.15.0 // indirect
 	github.com/valyala/bytebufferpool v1.0.0 // indirect
 	github.com/valyala/fasthttp v1.50.0 // indirect
 	github.com/valyala/tcplisten v1.0.0 // indirect

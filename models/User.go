@@ -12,13 +12,13 @@ import (
 
 type User struct {
   ID string `json:"ID" bson:"ID"`
+  WalletID string `json:"wallet" bson:"wallet"`
   UserName string `json:"username" bson:"username"`
   Phone string `json:"phone" bson:"phone"`
-  WalletID string `json:"wallet" bson:"wallet"`
   Password string `json:"password" bson:"password"`
 }
 
-func (u *User) GenUserToken() (string, error) {
+func (u *User) GenToken() (string, error) {
   claims, err := sj.ToClaims(&u)
   claims.SetExpiresAt(expirationTime)
 
@@ -26,7 +26,7 @@ func (u *User) GenUserToken() (string, error) {
   return token, err
 }
 
-func (u *User) ParseUserToken(token string) error {
+func (u *User) ParseToken(token string) error {
   verified := sj.Verify(token, []byte(env.JWTKey))
 
   if !verified {
@@ -47,7 +47,7 @@ func (u *User) ParseUserToken(token string) error {
   return err
 } 
 
-func (u *User) CreateUser(phone string) error {
+func (u *User) Create(phone string) error {
   id := GenID(8)
 
   var wallet Wallet
@@ -61,13 +61,13 @@ func (u *User) CreateUser(phone string) error {
   return err
 }
 
-func (u *User) GetUser(filter interface {}) error {
+func (u *User) Get(filter interface {}) error {
   err := db.Users.FindOne(db.Ctx, filter).Decode(&u)
 
   return err
 }
 
-func CheckUser(filter interface{}) bool {
+func Check(filter interface{}) bool {
   u := User{}
   err := db.Users.FindOne(db.Ctx, filter).Decode(&u)
 
@@ -77,7 +77,7 @@ func CheckUser(filter interface{}) bool {
 }
 
 func (u *User) AddUsername(ID string, username string) (error) {
-  exists := CheckUser(bson.M{
+  exists := Check(bson.M{
     "username": username,
   })
   
@@ -129,7 +129,7 @@ func (u *User) AddPassword(ID string, password string) (error) {
 }
 
 func (u *User) ComparePassword(password string) (error) {
-  if err := u.GetUser(bson.M{"phone": u.Phone}); err != nil {
+  if err := u.Get(bson.M{"phone": u.Phone}); err != nil {
     return err;
   }
 

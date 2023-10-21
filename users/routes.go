@@ -17,7 +17,7 @@ func authMiddleware(c *fiber.Ctx) error {
 	}
 
 	user := models.User{}
-	if err :=  user.ParseUserToken(token); err != nil {
+	if err :=  user.ParseToken(token); err != nil {
 		return utils.MessageError(c, err.Error())
 	}
 

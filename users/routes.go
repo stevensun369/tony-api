@@ -27,9 +27,9 @@ func authMiddleware(c *fiber.Ctx) error {
 	return c.Next()
 }
 
-func Routes(app *fiber.App) {
+func Routes(r fiber.Router) {
 	
-	g := app.Group(fmt.Sprintf("/%v/users", env.Version))
+	g := r.Group(fmt.Sprintf("/%v/users", env.Version))
 	
 	g.Get("/me", authMiddleware, func (c *fiber.Ctx) error {
 		user := models.User {}

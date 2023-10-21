@@ -120,7 +120,7 @@ func (u *User) AddPassword(ID string, password string) (error) {
     },
     bson.M{
       "$set": bson.M{
-        "password": hashedPassword,
+        "password": string(hashedPassword),
       },
     },
   ).Decode(&u)

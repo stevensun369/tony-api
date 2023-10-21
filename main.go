@@ -4,6 +4,7 @@ import (
 	"backend/db"
 	"backend/env"
 	"backend/users"
+	"backend/wallet"
 	"fmt"
 
 	"github.com/gofiber/fiber/v2"
@@ -22,11 +23,14 @@ func main() {
 	db.InitDB(env.MongoURI)
 	db.InitCache(env.RedisOptions)
 
-	app.Get("/v0/test", func(c *fiber.Ctx) error {
+	v := app.Group(fmt.Sprintf("%v", env.Version))
+
+	v.Get("/test", func(c *fiber.Ctx) error {
 		return c.JSON("ok!")
 	})
 
-	users.Routes(app)
+	users.Routes(v)
+	wallet.Routes(v)
 
 	app.Listen(":9000")
 }

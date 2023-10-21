@@ -13,8 +13,8 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
-func signup(r fiber.Router) {
-  g := r.Group("/signup")
+func login(r fiber.Router) {
+  g := r.Group("/login")
 
   g.Post("/phone", func (c *fiber.Ctx) error {
     // getting body
@@ -24,12 +24,12 @@ func signup(r fiber.Router) {
     phone := body["phone"]
 
     // if user with phone doesn't exist
-    if (!models.CheckUser(bson.M{"phone": phone})) {
+    if (models.CheckUser(bson.M{"phone": phone})) {
       // gen a code
       code := utils.GenCode(4)
 
       // get it across
-      if (!env.Dev) { 
+      if (!env.Dev) {
         utils.SendSMS("+4" + phone, code) 
       }
 
@@ -53,7 +53,7 @@ func signup(r fiber.Router) {
       return c.Status(200).Send([]byte(""))
     } else { // if user witn phone exists, err
       return utils.MessageError(c, 
-        "Un utilizator cu acest număr de telefon există deja.")
+        "Un utilizator cu acest număr de telefon nu există.")
     }
   })
 
@@ -80,74 +80,39 @@ func signup(r fiber.Router) {
       return utils.MessageError(c, "Codul este greșit")
     }
     
-    // deleting the code from caches
+    // deleting the code from cache
     db.Del(fmt.Sprintf("code:%v", body["phone"]))
 
-    // build & save a user
+    // creating a phone-only user token, 
+    // to use in the password authentication phase
     user := models.User {}
-    user.CreateUser(body["phone"])
-
-    // get a token
-    token, err := user.GenUserToken()
-  
-    if err != nil {
-      return utils.MessageError(c, err.Error())
-    }
-
-    return c.JSON(bson.M{
-      "token": token,
-    })
-  })
-
-  g.Post("/password", authMiddleware, func (c *fiber.Ctx) error {
-    ID := fmt.Sprintf("%v", c.Locals("ID"))
-    
-    // getting body
-    var body map[string]string
-    json.Unmarshal(c.Body(), &body)
-    password := body["password"]
-
-    user := models.User{}
-
-    // adding password
-    err := user.AddPassword(ID, password)
-    if err != nil {
-      return utils.MessageError(c, err.Error())
-    }
-    
-    // generating token
+    user.Phone = body["phone"]
     token, err := user.GenUserToken()
     if err != nil {
       return utils.MessageError(c, err.Error())
     }
 
-    // returning
     return c.JSON(bson.M{"token": token})
   })
 
-  g.Post("/username", authMiddleware, func (c *fiber.Ctx) error {
-    ID := fmt.Sprintf("%v", c.Locals("ID"))
-    
-    // getting body
+  g.Post("/password", authMiddleware,  func (c *fiber.Ctx) error {
     var body map[string]string
     json.Unmarshal(c.Body(), &body)
-    username := body["username"]
 
+    // getting the user
     user := models.User{}
+    utils.GetLocals(c, "user", &user)
 
-    // adding username
-    err := user.AddUsername(ID, username)
+    err := user.ComparePassword(body["password"])
     if err != nil {
-      return utils.MessageError(c, err.Error())
+      return utils.MessageError(c, "Parolă incorectă.")
     }
-    
-    // generating token
+
     token, err := user.GenUserToken()
     if err != nil {
       return utils.MessageError(c, err.Error())
     }
 
-    // returning
     return c.JSON(bson.M{"token": token})
   })
 }

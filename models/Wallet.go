@@ -7,7 +7,7 @@ type Wallet struct {
   Balance float32 `json:"balance" bson:"balance"`
 }
 
-func (w Wallet) CreateWallet() error {
+func (w *Wallet) CreateWallet() error {
   w.ID = GenID(10)
   w.Balance = 0.0
 

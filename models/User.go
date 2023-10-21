@@ -19,7 +19,7 @@ type User struct {
 }
 
 func (u *User) GenUserToken() (string, error) {
-  claims, err := sj.ToClaims(u)
+  claims, err := sj.ToClaims(&u)
   claims.SetExpiresAt(expirationTime)
 
   token := claims.Generate(env.JWTKey)
@@ -39,7 +39,10 @@ func (u *User) ParseUserToken(token string) error {
   }
 
   err = claims.Validate()
-  claims.ToStruct(&u)
+  if err != nil {
+    return err
+  }
+  err = claims.ToStruct(&u)
 
   return err
 } 
@@ -58,17 +61,31 @@ func (u *User) CreateUser(phone string) error {
   return err
 }
 
-func (u *User) AddUsername(ID string, username string) (error) {
-  tempUser := User{}
-  err := db.Users.FindOne(db.Ctx, bson.M{
-    "username": username,
-  }).Decode(&tempUser)
-  
+func (u *User) GetUser(filter interface {}) error {
+  err := db.Users.FindOne(db.Ctx, filter).Decode(&u)
+
+  return err
+}
+
+func CheckUser(filter interface{}) bool {
+  u := User{}
+  err := db.Users.FindOne(db.Ctx, filter).Decode(&u)
+
   if err == nil {
+    return true
+  } else { return false }
+}
+
+func (u *User) AddUsername(ID string, username string) (error) {
+  exists := CheckUser(bson.M{
+    "username": username,
+  })
+  
+  if exists {
     return errors.New("numele de utilizator există deja")
   }
 
-  err = db.Users.FindOneAndUpdate(
+  err := db.Users.FindOneAndUpdate(
     db.Ctx,
     bson.M{
       "ID": ID,
@@ -79,17 +96,18 @@ func (u *User) AddUsername(ID string, username string) (error) {
       },
     },
   ).Decode(&u)
-  u.UserName = username
-
+  
   if err != nil {
     return errors.New("nu s-a putut găsi")
   }
+  
+  u.UserName = username
 
   return nil
 }
 
 func (u *User) AddPassword(ID string, password string) (error) {
-  hashedPassword, err := bcrypt.GenerateFromPassword([]byte(password), 12)
+  hashedPassword, err := bcrypt.GenerateFromPassword([]byte(password), 10)
 
   if err != nil {
     return err
@@ -107,5 +125,14 @@ func (u *User) AddPassword(ID string, password string) (error) {
     },
   ).Decode(&u)
 
+  return err
+}
+
+func (u *User) ComparePassword(password string) (error) {
+  if err := u.GetUser(bson.M{"phone": u.Phone}); err != nil {
+    return err;
+  }
+
+  err := bcrypt.CompareHashAndPassword([]byte(u.Password), []byte(password))
   return err
 }

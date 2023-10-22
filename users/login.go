@@ -23,8 +23,8 @@ func login(r fiber.Router) {
 
     phone := body["phone"]
 
-    // if user with phone doesn't exist
-    if (models.Check(bson.M{"phone": phone})) {
+    // if user with phone does exist
+    if (models.UserCheck(bson.M{"phone": phone})) {
       // gen a code
       code := utils.GenCode(4)
 
@@ -95,7 +95,7 @@ func login(r fiber.Router) {
     return c.JSON(bson.M{"token": token})
   })
 
-  g.Post("/password", authMiddleware,  func (c *fiber.Ctx) error {
+  g.Post("/password", AuthMiddleware,  func (c *fiber.Ctx) error {
     var body map[string]string
     json.Unmarshal(c.Body(), &body)
 

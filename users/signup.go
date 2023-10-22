@@ -24,7 +24,7 @@ func signup(r fiber.Router) {
     phone := body["phone"]
 
     // if user with phone doesn't exist
-    if (!models.Check(bson.M{"phone": phone})) {
+    if (!models.UserCheck(bson.M{"phone": phone})) {
       // gen a code
       code := utils.GenCode(4)
 
@@ -99,7 +99,7 @@ func signup(r fiber.Router) {
     })
   })
 
-  g.Post("/password", authMiddleware, func (c *fiber.Ctx) error {
+  g.Post("/password", AuthMiddleware, func (c *fiber.Ctx) error {
     ID := fmt.Sprintf("%v", c.Locals("ID"))
     
     // getting body
@@ -125,7 +125,7 @@ func signup(r fiber.Router) {
     return c.JSON(bson.M{"token": token})
   })
 
-  g.Post("/username", authMiddleware, func (c *fiber.Ctx) error {
+  g.Post("/username", AuthMiddleware, func (c *fiber.Ctx) error {
     ID := fmt.Sprintf("%v", c.Locals("ID"))
     
     // getting body

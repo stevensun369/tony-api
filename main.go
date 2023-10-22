@@ -3,6 +3,7 @@ package main
 import (
 	"backend/db"
 	"backend/env"
+	"backend/storeadmin"
 	"backend/users"
 	"backend/wallet"
 	"fmt"
@@ -31,6 +32,7 @@ func main() {
 
 	users.Routes(v)
 	wallet.Routes(v)
+	storeadmin.Routes(v)
 
 	app.Listen(":9000")
 }

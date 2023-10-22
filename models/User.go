@@ -67,17 +67,19 @@ func (u *User) Get(filter interface {}) error {
   return err
 }
 
-func Check(filter interface{}) bool {
+func UserCheck(filter interface{}) bool {
   u := User{}
-  err := db.Users.FindOne(db.Ctx, filter).Decode(&u)
+  err := u.Get(filter)
 
   if err == nil {
     return true
-  } else { return false }
+  } else {
+    return false
+  }
 }
 
 func (u *User) AddUsername(ID string, username string) (error) {
-  exists := Check(bson.M{
+  exists := UserCheck(bson.M{
     "username": username,
   })
   
@@ -106,7 +108,7 @@ func (u *User) AddUsername(ID string, username string) (error) {
   return nil
 }
 
-func (u *User) AddPassword(ID string, password string) (error) {
+func (u *User) AddPassword(ID string, password string) error {
   hashedPassword, err := bcrypt.GenerateFromPassword([]byte(password), 10)
 
   if err != nil {
@@ -128,7 +130,7 @@ func (u *User) AddPassword(ID string, password string) (error) {
   return err
 }
 
-func (u *User) ComparePassword(password string) (error) {
+func (u *User) ComparePassword(password string) error {
   if err := u.Get(bson.M{"phone": u.Phone}); err != nil {
     return err;
   }

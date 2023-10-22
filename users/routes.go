@@ -9,7 +9,7 @@ import (
 	"github.com/gofiber/fiber/v2"
 )
 
-func authMiddleware(c *fiber.Ctx) error {
+func AuthMiddleware(c *fiber.Ctx) error {
 	token := c.Get("Authorization")
 	
 	if token == "" {
@@ -17,7 +17,7 @@ func authMiddleware(c *fiber.Ctx) error {
 	}
 
 	user := models.User{}
-	if err :=  user.ParseToken(token); err != nil {
+	if err := user.ParseToken(token); err != nil {
 		return utils.MessageError(c, err.Error())
 	}
 
@@ -31,7 +31,7 @@ func Routes(r fiber.Router) {
 	
 	g := r.Group(fmt.Sprintf("/%v/users", env.Version))
 	
-	g.Get("/me", authMiddleware, func (c *fiber.Ctx) error {
+	g.Get("/me", AuthMiddleware, func (c *fiber.Ctx) error {
 		user := models.User {}
 
 		utils.GetLocals(c, "user", &user)

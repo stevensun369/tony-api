@@ -3,9 +3,11 @@ package main
 import (
 	"backend/db"
 	"backend/env"
+	"backend/products"
 	"backend/storeadmin"
 	"backend/users"
 	"backend/wallet"
+
 	"fmt"
 
 	"github.com/gofiber/fiber/v2"
@@ -33,6 +35,7 @@ func main() {
 	users.Routes(v)
 	wallet.Routes(v)
 	storeadmin.Routes(v)
+	products.Routes(v)
 
 	app.Listen(":9000")
 }

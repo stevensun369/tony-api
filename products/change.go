@@ -28,6 +28,34 @@ func change(r fiber.Router) {
     return c.JSON(p)
   })
 
+  g.Put("/tags", storeadmin.StoreAdminMiddleware, users.AuthMiddleware, func (c *fiber.Ctx) error {
+    productID := c.Query("productID")
+    tag := c.Query("tag")
+
+    p := models.Product{}
+    err := p.AddTag(productID, tag)
+
+    if err != nil {
+      return utils.MessageError(c, err.Error())
+    }
+
+    return c.JSON(p)
+  })
+
+  g.Delete("/tags", storeadmin.StoreAdminMiddleware, users.AuthMiddleware, func(c *fiber.Ctx) error {
+    productID := c.Query("productID")
+    tag := c.Query("tag")
+
+    p := models.Product{}
+    err := p.RemoveTag(productID, tag)
+
+    if err != nil {
+      return utils.MessageError(c, err.Error())
+    }
+
+    return c.JSON(p)
+  })
+
   g.Put("/:field", storeadmin.StoreAdminMiddleware, users.AuthMiddleware, func (c *fiber.Ctx) error {
     var body map[string]interface{}
     json.Unmarshal(c.Body(), &body)
@@ -45,6 +73,8 @@ func change(r fiber.Router) {
 
     return c.JSON("ok")
   })
+
+ 
 
   variants(g)
 }

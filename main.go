@@ -5,8 +5,8 @@ import (
 	"backend/env"
 	"backend/products"
 	"backend/storeadmin"
+	"backend/tests"
 	"backend/users"
-	"backend/wallet"
 
 	"fmt"
 
@@ -28,12 +28,12 @@ func main() {
 
 	v := app.Group(fmt.Sprintf("%v", env.Version))
 
-	v.Get("/test", func(c *fiber.Ctx) error {
-		return c.JSON("ok!")
+	v.Get("/ping", func(c *fiber.Ctx) error {
+		return c.JSON("PONG")
 	})
 
+	tests.Routes(v)
 	users.Routes(v)
-	wallet.Routes(v)
 	storeadmin.Routes(v)
 	products.Routes(v)
 

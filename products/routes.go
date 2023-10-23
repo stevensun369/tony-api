@@ -7,4 +7,5 @@ func Routes(r fiber.Router) {
 
   change(g)
   options(g)
+  get(g)
 }

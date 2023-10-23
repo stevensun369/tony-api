@@ -11,6 +11,7 @@ type Product struct {
   StoreID string `json:"storeID" bson:"storeID"`
   Title string `json:"title" bson:"title"`
   Desc string `json:"desc" bson:"desc"`
+  Tags []string `json:"tags" bson:"tags"`
   Variants map[string][]ProductVariant `json:"variants" bson:"variants"`
   Options map[string][]ProductOption `json:"options" bson:"options"`
   Price float32 `json:"price" bson:"price"`
@@ -48,6 +49,18 @@ func (p *Product) Get(ID string) error {
   ).Decode(&p)
 }
 
+func GetProducts(filter interface {}) ([]Product, error) {
+  products := []Product {}
+
+  cursor, err := db.Products.Find(db.Ctx, filter)
+  if err != nil {
+    return []Product{}, err
+  }
+  err = cursor.All(db.Ctx, &products)
+  
+  return products, err
+}
+
 func (p *Product) UpdateField(ID string, fieldName string, value interface{}) error {
   _, err := db.Products.UpdateOne(
     db.Ctx,
@@ -60,6 +73,34 @@ func (p *Product) UpdateField(ID string, fieldName string, value interface{}) er
       },
     },
   )
+
+  return err
+}
+
+func (p *Product) AddTag(ID string, tag string) error {
+  p.Get(ID)
+
+  p.Tags = append(p.Tags, tag)
+
+  err := p.UpdateField(ID, "tags", p.Tags)
+
+  return err
+}
+
+func (p *Product) RemoveTag(ID string, tag string) error {
+  p.Get(ID)
+
+  tags := []string{}
+
+  for _, v := range p.Tags {
+    if v != tag {
+      tags = append(tags, v)
+    }
+  }
+
+  p.Tags = tags
+
+  err := p.UpdateField(ID, "tags", p.Tags)
 
   return err
 }

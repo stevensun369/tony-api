@@ -4,10 +4,10 @@ import (
 	"backend/clerks"
 	"backend/db"
 	"backend/env"
+	"backend/orders"
 	"backend/products"
 	"backend/storeadmins"
 	"backend/tests"
-	"backend/transactions"
 	"backend/users"
 
 	"fmt"
@@ -41,7 +41,7 @@ func main() {
 	clerks.Routes(v)
 
 	products.Routes(v)
-	transactions.Routes(v)
+	orders.Routes(v)
 
 	app.Listen(":9000")
 }

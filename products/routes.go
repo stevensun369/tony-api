@@ -6,6 +6,5 @@ func Routes(r fiber.Router) {
   g := r.Group("/products")
 
   change(g)
-  options(g)
   get(g)
 }

@@ -74,7 +74,6 @@ func change(r fiber.Router) {
     return c.JSON("ok")
   })
 
- 
-
   variants(g)
+  options(g)
 }

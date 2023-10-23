@@ -99,32 +99,6 @@ func signup(r fiber.Router) {
     })
   })
 
-  g.Post("/password", AuthMiddleware, func (c *fiber.Ctx) error {
-    ID := fmt.Sprintf("%v", c.Locals("ID"))
-    
-    // getting body
-    var body map[string]string
-    json.Unmarshal(c.Body(), &body)
-    password := body["password"]
-
-    user := models.User{}
-
-    // adding password
-    err := user.AddPassword(ID, password)
-    if err != nil {
-      return utils.MessageError(c, err.Error())
-    }
-    
-    // generating token
-    token, err := user.GenToken()
-    if err != nil {
-      return utils.MessageError(c, err.Error())
-    }
-
-    // returning
-    return c.JSON(bson.M{"token": token})
-  })
-
   g.Post("/username", AuthMiddleware, func (c *fiber.Ctx) error {
     ID := fmt.Sprintf("%v", c.Locals("ID"))
     
@@ -148,6 +122,6 @@ func signup(r fiber.Router) {
     }
 
     // returning
-    return c.JSON(bson.M{"token": token})
+    return c.JSON(bson.M{"token": token, "user": user})
   })
 }

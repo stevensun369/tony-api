@@ -83,36 +83,17 @@ func login(r fiber.Router) {
     // deleting the code from cache
     db.Del(fmt.Sprintf("code:%v", body["phone"]))
 
-    // creating a phone-only user token, 
-    // to use in the password authentication phase
+    // creating the token
     user := models.User {}
-    user.Phone = body["phone"]
+    err = user.Get(bson.M {"phone": body["phone"]})
+    if err != nil {
+      return utils.MessageError(c, err.Error())
+    }
     token, err := user.GenToken()
     if err != nil {
       return utils.MessageError(c, err.Error())
     }
 
-    return c.JSON(bson.M{"token": token})
-  })
-
-  g.Post("/password", AuthMiddleware,  func (c *fiber.Ctx) error {
-    var body map[string]string
-    json.Unmarshal(c.Body(), &body)
-
-    // getting the user
-    user := models.User{}
-    utils.GetLocals(c, "user", &user)
-
-    err := user.ComparePassword(body["password"])
-    if err != nil {
-      return utils.MessageError(c, "Parolă incorectă.")
-    }
-
-    token, err := user.GenToken()
-    if err != nil {
-      return utils.MessageError(c, err.Error())
-    }
-
-    return c.JSON(bson.M{"token": token})
+    return c.JSON(bson.M{"token": token, "user": user})
   })
 }

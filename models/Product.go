@@ -31,6 +31,7 @@ type ProductVariant struct {
 
 func (p *Product) Create() error {
   p.ID = GenID(6)
+  p.Stock = true
 
   _, err := db.Products.InsertOne(db.Ctx, p)
   if err != nil {

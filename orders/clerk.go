@@ -22,15 +22,14 @@ func clerk(r fiber.Router) {
     storeID := fmt.Sprintf("%v", c.Locals("storeID")) 
 
     ot := c.Query("type")
+    ID := c.Query("ID")
     
     o := models.Order{}
-    o.Build(pc)
-
-    err := o.Create(ot, storeID, clerkID)
+    err := o.Create(ot, pc, storeID, clerkID, ID)
     if err != nil {
       return utils.MessageError(c, err.Error())
     }
 
-    return c.JSON(pc)
+    return c.JSON(o)
   })
 }

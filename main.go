@@ -29,7 +29,7 @@ func main() {
 	v := app.Group(fmt.Sprintf("%v", env.Version))
 
 	v.Get("/ping", func(c *fiber.Ctx) error {
-		return c.JSON("PONG")
+		return c.SendString("PONG")
 	})
 
 	tests.Routes(v)

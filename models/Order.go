@@ -1,6 +1,11 @@
 package models
 
-import "fmt"
+import (
+	"backend/db"
+	"backend/utils"
+	"fmt"
+	"time"
+)
 
 type Order struct {
   ID string `json:"ID" bson:"ID"`
@@ -9,7 +14,7 @@ type Order struct {
 
   Receipt []ProductConfig `json:"receipt" bson:"receipt"`
 
-  PaymetMethod string `json:"type" bson:""`
+  TransactionID string `json:"transactionID" bson:"transactionID"`
 
   Value float32 `json:"value" bson:"value"`
 }
@@ -35,31 +40,44 @@ type PaymentMethod struct {
   Reference string `json:""`
 }
 
-func (o *Order) Build(pc []ProductConfig) {
-  o.ID = GenID(12)
-  o.SetValue()
+func (o *Order) Create(ot string, pc []ProductConfig, storeID string, clerkID string, ID string) error {
   o.Receipt = pc 
-}
-
-func (o *Order) Create(ot string, storeID string, clerkID string) error {
   o.StoreID = storeID
   o.ClerkID = clerkID
+  o.ID = GenID(12)
+
+  o.SetValue()
 
   switch(ot) {
   case "loyalty": 
-    fmt.Println(ot)
+    cashback := Transaction{
+      From: storeID,
+      To: ID,
+      Value: utils.ApplyCashbackRate(o.Value),
+      OrderID: o.ID,
+      Tag: "cashback",
+      CreatedAt: time.Now(),
+    }
+    
+    if err := cashback.Create(); err != nil {
+      return err
+    }
+  case "app":
+    fmt.Println("app")
   default:
     fmt.Println("default")
   }
 
-  return nil
+  _, err := db.Orders.InsertOne(db.Ctx, o)
+
+  return err
 }
 
 func (o *Order) SetValue() {
   for _, pc := range o.Receipt {
     o.Value += pc.GetPrice()
   }
-} 
+}
 
 func (p *ProductConfig) GetPrice() float32 {
   var variantsValue float32 = 0 

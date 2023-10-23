@@ -1,9 +1,13 @@
 package models
 
-import "backend/db"
+import (
+	"backend/db"
+	"time"
+)
 
 type Transaction struct {
   ID string `json:"ID" bson:"ID"`
+  Tag string `json:"tag" bson:"tag"`
 
   From string `json:"from" bson:"from"`
   To string `json:"to" bson:"to"`
@@ -12,7 +16,8 @@ type Transaction struct {
 
   Hash string `json:"hash" bson:"hash"`
 
-  Value float32 `json:"Value" bson:"Value"`
+  Value float32 `json:"value" bson:"value"`
+  CreatedAt time.Time `json:"createdAt" bson:"createdAt"`
 }
 
 func (t *Transaction) Create() error {
@@ -21,14 +26,14 @@ func (t *Transaction) Create() error {
   }
 
   // wallet from out
-  fromW := Wallet{}
+  fromW := Wallet{ID: t.From}
   err := fromW.Out(t.Value)
   if err != nil {
     return err
   }
 
   // wallet to in
-  toW := Wallet{}
+  toW := Wallet{ID: t.To}
   err = toW.In(t.Value)
   if err != nil {
     return err

@@ -51,7 +51,7 @@ func InitDB(MongoURI string) {
   Clerks = GetCollection("clerks", MongoClient)
   
   Products = GetCollection("products", MongoClient)
-  Orders = GetCollection("Orders", MongoClient)
+  Orders = GetCollection("orders", MongoClient)
 
   Transactions = GetCollection("transactions", MongoClient)
 

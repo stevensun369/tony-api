@@ -7,6 +7,7 @@ import (
 	"fmt"
 
 	"github.com/gofiber/fiber/v2"
+	"go.mongodb.org/mongo-driver/bson"
 )
 
 func ClerkMiddleware(c *fiber.Ctx) error {
@@ -32,6 +33,36 @@ func Routes(r fiber.Router) {
   g.Get("/me", users.AuthMiddleware, ClerkMiddleware, func (c *fiber.Ctx) error {
     return c.JSON(fmt.Sprintf("%v", c.Locals("storeID")))
   })
+
+	g.Post("/update", ClerkMiddleware, users.AuthMiddleware, func (c *fiber.Ctx) error {
+		user := models.User {}
+		clerk := models.Clerk {}
+		ID := fmt.Sprintf("%v", c.Locals("ID"))
+
+		// user
+		err := user.Get(bson.M {
+			"ID": ID, 
+		})
+		if err != nil {
+			return utils.MessageError(c, err.Error())
+		}
+		token, err := user.GenToken()
+		if err != nil {
+			return utils.MessageError(c, err.Error())
+		}
+
+		// clerk
+		err = clerk.Get(ID)
+		if err != nil {
+			return utils.MessageError(c, err.Error())
+		}
+		clerkToken, err := clerk.GenToken()
+		if err != nil {
+			return utils.MessageError(c, err.Error())
+		}
+
+		return c.JSON(bson.M{"token": token, "clerkToken": clerkToken})
+	})
 
   signup(g)
   login(g)

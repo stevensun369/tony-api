@@ -1,12 +1,12 @@
 package users
 
 import (
-	"backend/env"
 	"backend/models"
 	"backend/utils"
 	"fmt"
 
 	"github.com/gofiber/fiber/v2"
+	"go.mongodb.org/mongo-driver/bson"
 )
 
 func AuthMiddleware(c *fiber.Ctx) error {
@@ -29,13 +29,32 @@ func AuthMiddleware(c *fiber.Ctx) error {
 
 func Routes(r fiber.Router) {
 	
-	g := r.Group(fmt.Sprintf("/%v/users", env.Version))
+	g := r.Group("/users")
 	
 	g.Get("/me", AuthMiddleware, func (c *fiber.Ctx) error {
 		user := models.User {}
 
 		utils.GetLocals(c, "user", &user)
 		return c.JSON(user)
+	})
+
+	g.Post("/update", AuthMiddleware, func (c *fiber.Ctx) error {
+		user := models.User {}
+		ID := fmt.Sprintf("%v", c.Locals("ID"))
+
+		err := user.Get(bson.M {
+			"ID": ID, 
+		})
+		if err != nil {
+			return utils.MessageError(c, err.Error())
+		}
+
+		token, err := user.GenToken()
+		if err != nil {
+			return utils.MessageError(c, err.Error())
+		}
+
+		return c.JSON(bson.M{"token": token})
 	})
 	
   signup(g)

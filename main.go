@@ -17,8 +17,6 @@ import (
 )
 
 func main() {
-	fmt.Println("hello world")
-
 	app := fiber.New()
 
 	app.Use(cors.New(cors.Config{

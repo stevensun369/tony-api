@@ -21,7 +21,7 @@ func (w *Wallet) CreateWallet() error {
   return err
 }
 
-func (w *Wallet) GetWallet(ID string) error {
+func (w *Wallet) Get(ID string) error {
   err := db.Wallets.FindOne(db.Ctx, bson.M{
     "ID": ID,
   }).Decode(&w)
@@ -30,10 +30,10 @@ func (w *Wallet) GetWallet(ID string) error {
 }
 
 func (w *Wallet) Out(amount float32) error {
-  w.GetWallet(w.ID)
+  w.Get(w.ID)
 
   if (w.Balance > amount) {
-    err := db.Wallets.FindOneAndUpdate(
+    _, err := db.Wallets.UpdateOne(
       db.Ctx,
       bson.M {"ID": w.ID},
       bson.M {
@@ -41,7 +41,7 @@ func (w *Wallet) Out(amount float32) error {
           "balance": w.Balance - amount,
         },
       },
-    ).Decode(&w)
+    )
 
     if err != nil {
       return err

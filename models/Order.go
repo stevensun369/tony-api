@@ -5,6 +5,7 @@ import "fmt"
 type Order struct {
   ID string `json:"ID" bson:"ID"`
   StoreID string `json:"storeID" bson:"storeID"`
+  ClerkID string `json:"clerkID" bson:"clerkID"`
 
   Receipt []ProductConfig `json:"receipt" bson:"receipt"`
 
@@ -40,7 +41,10 @@ func (o *Order) Build(pc []ProductConfig) {
   o.Receipt = pc 
 }
 
-func (o *Order) Create(ot string) error {
+func (o *Order) Create(ot string, storeID string, clerkID string) error {
+  o.StoreID = storeID
+  o.ClerkID = clerkID
+
   switch(ot) {
   case "loyalty": 
     fmt.Println(ot)

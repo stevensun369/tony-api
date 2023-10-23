@@ -23,6 +23,8 @@ var StoreAdmins *mongo.Collection
 var Clerks *mongo.Collection
 
 var Products *mongo.Collection
+var Orders *mongo.Collection
+
 var Transactions *mongo.Collection
 
 func GetCollection(col string, client *mongo.Client) (*mongo.Collection) {
@@ -49,6 +51,8 @@ func InitDB(MongoURI string) {
   Clerks = GetCollection("clerks", MongoClient)
   
   Products = GetCollection("products", MongoClient)
+  Orders = GetCollection("Orders", MongoClient)
+
   Transactions = GetCollection("transactions", MongoClient)
 
   fmt.Println("connected to MongoDB")

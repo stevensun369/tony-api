@@ -25,11 +25,27 @@ func get(r fiber.Router) {
     return c.JSON(p)
   })
 
-  g.Get("/", users.AuthMiddleware, func (c *fiber.Ctx) error {
+  g.Get("/tag", users.AuthMiddleware, func (c *fiber.Ctx) error {
     tag := c.Query("tag")
+    storeID := c.Query("storeID")
 
     products, err := models.GetProducts(bson.M {
       "tags": tag,
+      "storeID": storeID,
+    })
+
+    if err != nil {
+      return utils.MessageError(c, err.Error())
+    }
+
+    return c.JSON(products)
+  })
+
+  g.Get("/", users.AuthMiddleware, func (c *fiber.Ctx) error {
+    storeID := c.Query("storeID")
+
+    products, err := models.GetProducts(bson.M {
+      "storeID": storeID,
     })
 
     if err != nil {

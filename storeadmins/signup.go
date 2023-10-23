@@ -27,6 +27,6 @@ func signup(r fiber.Router) {
       return utils.MessageError(c, err.Error())
     }
 
-    return c.JSON(bson.M{"storeAdminToken": token})
+    return c.JSON(bson.M{"storeAdminToken": token, "storeAdmin": sa})
   })
 }

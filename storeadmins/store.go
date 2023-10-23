@@ -1,4 +1,4 @@
-package storeadmin
+package storeadmins
 
 import (
 	"backend/models"

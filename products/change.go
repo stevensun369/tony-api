@@ -2,7 +2,7 @@ package products
 
 import (
 	"backend/models"
-	"backend/storeadmin"
+	"backend/storeadmins"
 	"backend/users"
 	"backend/utils"
 	"encoding/json"
@@ -14,7 +14,7 @@ import (
 func change(r fiber.Router) {
   g := r.Group("/")
 
-  g.Post("/", storeadmin.StoreAdminMiddleware, users.AuthMiddleware, func (c *fiber.Ctx) error {
+  g.Post("/", storeadmins.StoreAdminMiddleware, users.AuthMiddleware, func (c *fiber.Ctx) error {
     p := models.Product{}
     json.Unmarshal(c.Body(), &p)
 
@@ -28,7 +28,7 @@ func change(r fiber.Router) {
     return c.JSON(p)
   })
 
-  g.Put("/tags", storeadmin.StoreAdminMiddleware, users.AuthMiddleware, func (c *fiber.Ctx) error {
+  g.Put("/tags", storeadmins.StoreAdminMiddleware, users.AuthMiddleware, func (c *fiber.Ctx) error {
     productID := c.Query("productID")
     tag := c.Query("tag")
 
@@ -42,7 +42,7 @@ func change(r fiber.Router) {
     return c.JSON(p)
   })
 
-  g.Delete("/tags", storeadmin.StoreAdminMiddleware, users.AuthMiddleware, func(c *fiber.Ctx) error {
+  g.Delete("/tags", storeadmins.StoreAdminMiddleware, users.AuthMiddleware, func(c *fiber.Ctx) error {
     productID := c.Query("productID")
     tag := c.Query("tag")
 
@@ -56,7 +56,7 @@ func change(r fiber.Router) {
     return c.JSON(p)
   })
 
-  g.Put("/:field", storeadmin.StoreAdminMiddleware, users.AuthMiddleware, func (c *fiber.Ctx) error {
+  g.Put("/:field", storeadmins.StoreAdminMiddleware, users.AuthMiddleware, func (c *fiber.Ctx) error {
     var body map[string]interface{}
     json.Unmarshal(c.Body(), &body)
 

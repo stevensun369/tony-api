@@ -1,4 +1,4 @@
-package storeadmin
+package storeadmins
 
 import (
 	"backend/models"
@@ -27,7 +27,7 @@ func StoreAdminMiddleware(c *fiber.Ctx) error {
 }
 
 func Routes(r fiber.Router) {
-  g := r.Group("/storeadmin")
+  g := r.Group("/storeadmins")
 
   g.Get("/me", users.AuthMiddleware, StoreAdminMiddleware, func (c *fiber.Ctx) error {
     return c.JSON(fmt.Sprintf("%v", c.Locals("storeID")))

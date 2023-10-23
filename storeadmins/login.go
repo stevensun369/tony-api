@@ -1,4 +1,4 @@
-package storeadmin
+package storeadmins
 
 import (
 	"backend/models"
@@ -10,8 +10,8 @@ import (
 	"go.mongodb.org/mongo-driver/bson"
 )
 
-func signup(r fiber.Router) {
-  g := r.Group("/signup")
+func login(r fiber.Router) {
+  g := r.Group("/login")
 
   g.Post("/", users.AuthMiddleware, func (c *fiber.Ctx) error {
     // getting user ID
@@ -19,7 +19,7 @@ func signup(r fiber.Router) {
 
     // creating the storeAdmin
     sa := models.StoreAdmin{}
-    sa.Create(ID)
+    sa.Get(ID)
 
     // getting storeAdmin token
     token, err := sa.GenToken()

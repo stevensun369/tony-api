@@ -1,11 +1,13 @@
 package main
 
 import (
+	"backend/clerks"
 	"backend/db"
 	"backend/env"
 	"backend/products"
-	"backend/storeadmin"
+	"backend/storeadmins"
 	"backend/tests"
+	"backend/transactions"
 	"backend/users"
 
 	"fmt"
@@ -34,8 +36,12 @@ func main() {
 
 	tests.Routes(v)
 	users.Routes(v)
-	storeadmin.Routes(v)
+
+	storeadmins.Routes(v)
+	clerks.Routes(v)
+
 	products.Routes(v)
+	transactions.Routes(v)
 
 	app.Listen(":9000")
 }

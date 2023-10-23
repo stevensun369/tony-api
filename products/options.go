@@ -2,7 +2,7 @@ package products
 
 import (
 	"backend/models"
-	"backend/storeadmin"
+	"backend/storeadmins"
 	"backend/users"
 	"backend/utils"
 	"encoding/json"
@@ -13,7 +13,7 @@ import (
 func options(r fiber.Router) {
   g := r.Group("/options")
 
-  g.Post("/", storeadmin.StoreAdminMiddleware, users.AuthMiddleware, func (c *fiber.Ctx) error {
+  g.Post("/", storeadmins.StoreAdminMiddleware, users.AuthMiddleware, func (c *fiber.Ctx) error {
     productID := c.Query("productID")
     key := c.Query("key")
 
@@ -25,7 +25,7 @@ func options(r fiber.Router) {
     return c.JSON(p)
   })
 
-  g.Delete("/", storeadmin.StoreAdminMiddleware, users.AuthMiddleware, func (c *fiber.Ctx) error {
+  g.Delete("/", storeadmins.StoreAdminMiddleware, users.AuthMiddleware, func (c *fiber.Ctx) error {
     productID := c.Query("productID")
     key := c.Query("key")
 
@@ -37,7 +37,7 @@ func options(r fiber.Router) {
     return c.JSON(p)
   })
 
-  g.Post("/:key", storeadmin.StoreAdminMiddleware, users.AuthMiddleware, func (c *fiber.Ctx) error {
+  g.Post("/:key", storeadmins.StoreAdminMiddleware, users.AuthMiddleware, func (c *fiber.Ctx) error {
     productID := c.Query("productID")
     key := c.Params("key")
 
@@ -52,7 +52,7 @@ func options(r fiber.Router) {
     return c.JSON(p)
   })
 
-  g.Delete("/:key", storeadmin.StoreAdminMiddleware, users.AuthMiddleware, func (c *fiber.Ctx) error {
+  g.Delete("/:key", storeadmins.StoreAdminMiddleware, users.AuthMiddleware, func (c *fiber.Ctx) error {
     productID := c.Query("productID")
     key := c.Params("key")
     option := c.Query("option")
@@ -65,7 +65,7 @@ func options(r fiber.Router) {
     return c.JSON(p)
   })
 
-  g.Patch("/:key", storeadmin.StoreAdminMiddleware, users.AuthMiddleware, func (c *fiber.Ctx) error {
+  g.Patch("/:key", storeadmins.StoreAdminMiddleware, users.AuthMiddleware, func (c *fiber.Ctx) error {
     productID := c.Query("productID")
     key := c.Params("key")
 

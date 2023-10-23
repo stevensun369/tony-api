@@ -1,4 +1,4 @@
-package storeadmin
+package clerks
 
 import (
 	"backend/models"
@@ -10,23 +10,23 @@ import (
 	"go.mongodb.org/mongo-driver/bson"
 )
 
-func login(r fiber.Router) {
-  g := r.Group("/login")
+func signup(r fiber.Router) {
+  g := r.Group("/signup")
 
   g.Post("/", users.AuthMiddleware, func (c *fiber.Ctx) error {
     // getting user ID
     ID := fmt.Sprintf("%v", c.Locals("ID"))
 
     // creating the storeAdmin
-    sa := models.StoreAdmin{}
-    sa.Get(ID)
+    clerk := models.Clerk{}
+    clerk.Create(ID)
 
     // getting storeAdmin token
-    token, err := sa.GenToken()
+    token, err := clerk.GenToken()
     if err != nil {
       return utils.MessageError(c, err.Error())
     }
 
-    return c.JSON(bson.M{"storeAdminToken": token})
+    return c.JSON(bson.M{"clerkToken": token})
   })
 }

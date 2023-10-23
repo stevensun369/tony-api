@@ -15,12 +15,15 @@ var MongoClient *mongo.Client
 var RedisClient *redis.Client
 var Ctx = context.Background()
 
-
 var Users *mongo.Collection
 var Wallets *mongo.Collection
-var Products *mongo.Collection
+
 var Stores *mongo.Collection
 var StoreAdmins *mongo.Collection
+var Clerks *mongo.Collection
+
+var Products *mongo.Collection
+var Transactions *mongo.Collection
 
 func GetCollection(col string, client *mongo.Client) (*mongo.Collection) {
   return client.Database("dev").Collection(col)
@@ -40,9 +43,13 @@ func InitDB(MongoURI string) {
 
   Users = GetCollection("users", MongoClient)
   Wallets = GetCollection("wallets", MongoClient)
-  Products = GetCollection("products", MongoClient)
+
   Stores = GetCollection("stores", MongoClient)
   StoreAdmins = GetCollection("storeAdmins", MongoClient)
+  Clerks = GetCollection("clerks", MongoClient)
+  
+  Products = GetCollection("products", MongoClient)
+  Transactions = GetCollection("transactions", MongoClient)
 
   fmt.Println("connected to MongoDB")
 }

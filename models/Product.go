@@ -33,6 +33,10 @@ func (p *Product) Create() error {
   p.ID = GenID(6)
   p.Stock = true
 
+  p.Tags = []string {}
+  p.Variants = map[string][]ProductVariant {}
+  p.Options = map[string][]ProductOption {}
+
   _, err := db.Products.InsertOne(db.Ctx, p)
   if err != nil {
     return err

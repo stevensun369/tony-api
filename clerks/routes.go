@@ -64,6 +64,18 @@ func Routes(r fiber.Router) {
 		return c.JSON(bson.M{"token": token, "clerkToken": clerkToken})
 	})
 
+	g.Get("/store", ClerkMiddleware, users.AuthMiddleware, func(c *fiber.Ctx) error {
+		storeID := fmt.Sprintf("%v", c.Locals("storeID"))
+		
+		store := models.Store{}
+		err := store.Get(storeID)
+		if err != nil {
+			return utils.MessageError(c, err.Error())
+		}
+
+		return c.JSON(store)
+	})
+
   signup(g)
   login(g)
 }

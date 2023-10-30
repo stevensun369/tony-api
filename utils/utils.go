@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"math/rand"
 	"strconv"
+	"time"
 
 	"github.com/gofiber/fiber/v2"
 )
@@ -15,6 +16,31 @@ func GenCode(s int) string {
     code += strconv.Itoa(rand.Intn(10));
   }
   return code
+}
+
+func GetToday() string {
+  t := time.Now()
+  return fmt.Sprintf("%v.%v.%v", 
+    t.Day(), 
+    int(t.Month()), 
+    t.Year())
+}
+
+func addLeadingZero(s int) string {
+  if s < 10 {
+    return fmt.Sprintf("0%v", s)
+  } else {
+    return fmt.Sprintf("%v", s)
+  }
+}
+
+func GetNow() string {
+  t := time.Now()
+  return fmt.Sprintf("%v:%v:%v", 
+    addLeadingZero(t.Hour()),
+    addLeadingZero(t.Minute()),
+    addLeadingZero(t.Second()),
+  )
 }
 
 func GetLocals(c *fiber.Ctx, name string, result interface{}) {

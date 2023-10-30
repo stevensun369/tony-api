@@ -17,6 +17,10 @@ type Order struct {
   TransactionID string `json:"transactionID" bson:"transactionID"`
 
   Value float32 `json:"value" bson:"value"`
+
+  // date time
+  Date string `json:"date" bson:"date"`
+  Time string `json:"time" bson:"time"`
 }
 
 type ProductConfig struct {
@@ -40,11 +44,29 @@ type PaymentMethod struct {
   Reference string `json:""`
 }
 
+func GetOrders(filter interface{}) ([]Order, error) {
+  orders := []Order {}
+
+  cursor, err := db.Orders.Find(db.Ctx, filter)
+  if err != nil {
+    return orders, err
+  }
+
+  err = cursor.All(db.Ctx, &orders)
+  if err != nil {
+    return orders, err
+  }
+
+  return orders, nil
+}
+
 func (o *Order) Create(ot string, pc []ProductConfig, storeID string, clerkID string, ID string) error {
   o.Receipt = pc 
   o.StoreID = storeID
   o.ClerkID = clerkID
   o.ID = GenID(12)
+  o.Date = utils.GetToday()
+  o.Time = utils.GetNow()
 
   o.SetValue()
 

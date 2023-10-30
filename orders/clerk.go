@@ -9,10 +9,22 @@ import (
 	"fmt"
 
 	"github.com/gofiber/fiber/v2"
+	"go.mongodb.org/mongo-driver/bson"
 )
 
 func clerk(r fiber.Router) {
   g := r.Group("/clerk")
+
+  g.Get("/day", clerks.ClerkMiddleware, users.AuthMiddleware, func (c *fiber.Ctx) error {
+    orders, err := models.GetOrders(bson.M {
+      "date": utils.GetToday(),
+    })
+    if  err != nil {
+      return utils.MessageError(c, err.Error())
+    }
+
+    return c.JSON(orders)
+  })
 
   g.Post("/", clerks.ClerkMiddleware, users.AuthMiddleware, func (c *fiber.Ctx) error {
     pc := []models.ProductConfig{}

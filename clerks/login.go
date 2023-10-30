@@ -18,15 +18,15 @@ func login(r fiber.Router) {
     ID := fmt.Sprintf("%v", c.Locals("ID"))
 
     // creating the storeAdmin
-    sa := models.Clerk{}
-    sa.Get(ID)
+    clerk := models.Clerk{}
+    clerk.Get(ID)
 
     // getting storeAdmin token
-    token, err := sa.GenToken()
+    token, err := clerk.GenToken()
     if err != nil {
       return utils.MessageError(c, err.Error())
     }
 
-    return c.JSON(bson.M{"clerkToken": token})
+    return c.JSON(bson.M{"clerkToken": token, "clerk": clerk})
   })
 }

@@ -10,6 +10,7 @@ type Store struct {
   ID string `json:"ID" bson:"ID"`
   Name string `json:"name" bson:"name"`
   Open string `json:"open" bson:"open"`
+  Tags []string `json:"tags" bson:"tags"`
 }
 
 func (s *Store) Get(ID string) error {

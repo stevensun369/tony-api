@@ -9,7 +9,7 @@ import (
 
 type Wallet struct {
   ID string `json:"ID" bson:"ID"`
-  Balance float32 `json:"balance" bson:"balance"`
+  Balance int `json:"balance" bson:"balance"`
 }
 
 func (w *Wallet) CreateWallet() error {
@@ -29,7 +29,7 @@ func (w *Wallet) Get(ID string) error {
   return err
 }
 
-func (w *Wallet) Out(amount float32) error {
+func (w *Wallet) Out(amount int) error {
   w.Get(w.ID)
 
   if (w.Balance > amount) {
@@ -55,16 +55,18 @@ func (w *Wallet) Out(amount float32) error {
   }
 }
 
-func (w *Wallet) In(amount float32) error {
-  err := db.Wallets.FindOneAndUpdate(
+func (w *Wallet) In(amount int) error {
+  w.Get(w.ID)
+
+  _, err := db.Wallets.UpdateOne(
     db.Ctx,
     bson.M {"ID": w.ID},
     bson.M {
-      "$inc": bson.M {
-        "balance": amount,
+      "$set": bson.M {
+        "balance": w.Balance + amount,
       },
     },
-  ).Decode(&w)
+  )
 
   if err != nil {
     return err

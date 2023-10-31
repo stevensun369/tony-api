@@ -16,7 +16,7 @@ type Order struct {
 
   TransactionID string `json:"transactionID" bson:"transactionID"`
 
-  Value float32 `json:"value" bson:"value"`
+  Value int `json:"value" bson:"value"`
 
   // date time
   Date string `json:"date" bson:"date"`
@@ -27,16 +27,16 @@ type ProductConfig struct {
   ProductID string `json:"productID" bson:"productID"`
 
   Title string `json:"title" bson:"title"`
-  Variants []ShortProductVariant `json:"variants" bson:"variants"`
-  Options []string `json:"options" bson:"options"`
+  Variants map[string]ShortProductVariant `json:"variants" bson:"variants"`
+  Options map[string]string `json:"options" bson:"options"`
 
-  Price float32 `json:"price" bson:"price"`
+  Price int `json:"price" bson:"price"`
   Quantity int `json:"quantity" bson:"quantity"`
 }
 
 type ShortProductVariant struct {
   Variant string `json:"variant" bson:"variant"`
-  Price float32 `json:"price" bson:"price"`
+  Price int `json:"price" bson:"price"`
 }
 
 func GetOrders(filter interface{}) ([]Order, error) {
@@ -96,13 +96,13 @@ func (o *Order) SetValue() {
   }
 }
 
-func (p *ProductConfig) GetPrice() float32 {
-  var variantsValue float32 = 0 
+func (p *ProductConfig) GetPrice() int {
+  var variantsValue int = 0 
 
   for _, v := range p.Variants {
     variantsValue += v.Price
   }
 
-  return  float32(p.Quantity) * (p.Price + variantsValue)
+  return  int(p.Quantity) * (p.Price + variantsValue)
 }
 

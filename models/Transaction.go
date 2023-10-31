@@ -2,6 +2,7 @@ package models
 
 import (
 	"backend/db"
+	"errors"
 	"time"
 )
 
@@ -16,7 +17,7 @@ type Transaction struct {
 
   Hash string `json:"hash" bson:"hash"`
 
-  Value float32 `json:"value" bson:"value"`
+  Value int `json:"value" bson:"value"`
   CreatedAt time.Time `json:"createdAt" bson:"createdAt"`
 }
 
@@ -29,14 +30,14 @@ func (t *Transaction) Create() error {
   fromW := Wallet{ID: t.From}
   err := fromW.Out(t.Value)
   if err != nil {
-    return err
+    return errors.New("from")
   }
 
   // wallet to in
   toW := Wallet{ID: t.To}
   err = toW.In(t.Value)
   if err != nil {
-    return err
+    return errors.New("to")
   }
 
   _, err = db.Transactions.InsertOne(db.Ctx, t)

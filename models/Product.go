@@ -14,7 +14,7 @@ type Product struct {
   Tags []string `json:"tags" bson:"tags"`
   Variants map[string][]ProductVariant `json:"variants" bson:"variants"`
   Options map[string][]ProductOption `json:"options" bson:"options"`
-  Price float32 `json:"price" bson:"price"`
+  Price int `json:"price" bson:"price"`
   Stock bool `json:"stock" bson:"stock"`
 }
 
@@ -26,7 +26,7 @@ type ProductOption struct {
 type ProductVariant struct {
   Variant string `json:"variant" bson:"variant"`
   Stock bool `json:"stock" bson:"stock"`
-  Price float32 `json:"price" bson:"price"`
+  Price int `json:"price" bson:"price"`
 }
 
 func (p *Product) Create() error {

@@ -17,7 +17,11 @@ import (
 )
 
 func main() {
-	app := fiber.New()
+	app := fiber.New(fiber.Config {
+		Prefork: !env.Dev,
+		BodyLimit: 10 * 1024 * 1024,
+		StreamRequestBody: true,
+	})
 
 	app.Use(cors.New(cors.Config{
 		AllowOrigins: "*",

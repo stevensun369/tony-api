@@ -39,11 +39,6 @@ type ShortProductVariant struct {
   Price float32 `json:"price" bson:"price"`
 }
 
-type PaymentMethod struct {
-  Type string `json:"type" bson:"type"`
-  Reference string `json:""`
-}
-
 func GetOrders(filter interface{}) ([]Order, error) {
   orders := []Order {}
 

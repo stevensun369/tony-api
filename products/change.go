@@ -14,6 +14,32 @@ import (
 func change(r fiber.Router) {
   g := r.Group("/")
 
+  g.Post("/product/image", func (c *fiber.Ctx) error {
+    productID := c.Query("productID")
+    token := c.Query("token")
+    storeAdminToken := c.Query("storeAdminToken")
+
+    user := models.User{}
+    if err := user.ParseToken(token); err != nil {
+      return utils.MessageError(c, err.Error())
+    }
+
+    storeAdmin := models.StoreAdmin{}
+    if err := storeAdmin.ParseToken(storeAdminToken); err != nil {
+      return utils.MessageError(c, err.Error())
+    }
+
+    file, err := c.FormFile("image")
+    if err != nil {
+      return utils.MessageError(c, err.Error())
+    }
+
+    filePath := fmt.Sprintf("./files/products/%v.jpg", productID)
+    c.SaveFile(file, filePath)
+
+    return c.JSON("ok")
+  })
+
   g.Post("/", storeadmins.StoreAdminMiddleware, users.AuthMiddleware, func (c *fiber.Ctx) error {
     p := models.Product{}
     json.Unmarshal(c.Body(), &p)

@@ -4,6 +4,7 @@ import (
 	"backend/models"
 	"backend/users"
 	"backend/utils"
+	"fmt"
 
 	"github.com/gofiber/fiber/v2"
 	"go.mongodb.org/mongo-driver/bson"
@@ -11,6 +12,18 @@ import (
 
 func get(r fiber.Router) {
   g := r.Group("/")
+
+  g.Get("/product/image", func (c *fiber.Ctx) error {
+    productID := c.Query("productID")
+    token := c.Query("token")
+
+    user := models.User{}
+    if err := user.ParseToken(token); err != nil {
+      return utils.MessageError(c, err.Error())
+    }
+
+    return c.Response().SendFile(fmt.Sprintf("./files/products/%v.jpg", productID))
+  })
 
   g.Get("/product", users.AuthMiddleware, func (c *fiber.Ctx) error {
     productID := c.Query("productID")

@@ -1,6 +1,7 @@
 package utils
 
 import (
+	"backend/env"
 	"encoding/json"
 	"fmt"
 	"math/rand"
@@ -11,6 +12,10 @@ import (
 )
 
 func GenCode(s int) string {
+  if (!env.Dev) {
+    rand.Seed(time.Now().UnixNano())
+  }
+  
   var code string
   for i := 0; i < s; i++ {
     code += strconv.Itoa(rand.Intn(10));

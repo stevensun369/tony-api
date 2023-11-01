@@ -5,6 +5,8 @@ import (
 	"backend/utils"
 	"fmt"
 	"time"
+
+	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
 type Order struct {
@@ -39,10 +41,12 @@ type ShortProductVariant struct {
   Price int `json:"price" bson:"price"`
 }
 
-func GetOrders(filter interface{}) ([]Order, error) {
+func GetOrders(filter interface{}, sort interface{}) ([]Order, error) {
   orders := []Order {}
 
-  cursor, err := db.Orders.Find(db.Ctx, filter)
+  opts := options.Find().SetSort(sort)
+
+  cursor, err := db.Orders.Find(db.Ctx, filter, opts)
   if err != nil {
     return orders, err
   }

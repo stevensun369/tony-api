@@ -18,7 +18,10 @@ func clerk(r fiber.Router) {
   g.Get("/day", clerks.ClerkMiddleware, users.AuthMiddleware, func (c *fiber.Ctx) error {
     orders, err := models.GetOrders(bson.M {
       "date": utils.GetToday(),
+    }, bson.M {
+      "time": -1,
     })
+
     if  err != nil {
       return utils.MessageError(c, err.Error())
     }

@@ -82,9 +82,10 @@ func Routes(r fiber.Router) {
       return utils.MessageError(c, err.Error())
     }
 
-    return c.JSON(user)
+    return c.JSON(wallet)
   })
 
   signup(g)
 	login(g)
+	transactions(g)
 }

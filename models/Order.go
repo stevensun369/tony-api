@@ -4,8 +4,8 @@ import (
 	"backend/db"
 	"backend/utils"
 	"fmt"
-	"time"
 
+	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
@@ -59,6 +59,12 @@ func GetOrders(filter interface{}, sort interface{}) ([]Order, error) {
   return orders, nil
 }
 
+func (o *Order) GetOrder(ID string) error {
+  return db.Orders.FindOne(db.Ctx, bson.M {
+    "ID": ID,
+  }).Decode(o)
+} 
+
 func (o *Order) Create(ot string, pc []ProductConfig, storeID string, clerkID string, ID string) error {
   o.Receipt = pc 
   o.StoreID = storeID
@@ -77,7 +83,8 @@ func (o *Order) Create(ot string, pc []ProductConfig, storeID string, clerkID st
       Value: utils.ApplyCashbackRate(o.Value),
       OrderID: o.ID,
       Tag: "cashback",
-      CreatedAt: time.Now(),
+      Date: o.Date,
+      Time: o.Time,
     }
     
     if err := cashback.Create(); err != nil {

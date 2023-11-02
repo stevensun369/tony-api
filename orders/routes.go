@@ -6,4 +6,5 @@ func Routes(r fiber.Router) {
   g := r.Group("/orders")
 
   clerk(g)
+  user(g)
 }

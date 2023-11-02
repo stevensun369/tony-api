@@ -3,7 +3,6 @@ package models
 import (
 	"backend/db"
 	"errors"
-	"time"
 )
 
 type Transaction struct {
@@ -18,7 +17,9 @@ type Transaction struct {
   Hash string `json:"hash" bson:"hash"`
 
   Value int `json:"value" bson:"value"`
-  CreatedAt time.Time `json:"createdAt" bson:"createdAt"`
+  
+  Date string `json:"date" bson:"date"`
+  Time string `json:"time" bson:"time"`
 }
 
 func (t *Transaction) Create() error {
@@ -43,4 +44,19 @@ func (t *Transaction) Create() error {
   _, err = db.Transactions.InsertOne(db.Ctx, t)
 
   return err
+}
+
+func GetTransactions(filter interface{}) ([]Transaction, error) {
+  transactions := []Transaction {}
+
+  cursor, err := db.Transactions.Find(db.Ctx, filter)
+  if err != nil {
+    return transactions, err
+  }
+
+  if err := cursor.All(db.Ctx, &transactions); err != nil {
+    return transactions, err
+  }
+
+  return transactions, err
 }

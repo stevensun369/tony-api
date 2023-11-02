@@ -11,7 +11,7 @@ import (
 
 type User struct {
   ID string `json:"ID" bson:"ID"`
-  WalletID string `json:"wallet" bson:"wallet"`
+  WalletID string `json:"walletID" bson:"walletID"`
   UserName string `json:"username" bson:"username"`
   Phone string `json:"phone" bson:"phone"`
 }

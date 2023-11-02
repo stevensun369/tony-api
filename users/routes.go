@@ -57,19 +57,33 @@ func Routes(r fiber.Router) {
 		return c.JSON(bson.M{"token": token})
 	})
 	
-	// first checking if user exists, 
-	// to know what api handler to call 
-	// on the frontend app
-	g.Post("/check", func (c *fiber.Ctx) error {
+	g.Get("/check", func (c *fiber.Ctx) error {
 		phone := c.Query("phone")
+		check := models.UserCheck(
+			bson.M {
+				"phone": phone,
+			},
+		)
+
 		return c.JSON(
-			models.UserCheck(
-				bson.M {
-					"phone": phone,
-				},
-			),
+			bson.M {
+				"check": check,
+			},
 		)
 	})
+
+	g.Get("/wallet", AuthMiddleware, func (c *fiber.Ctx) error {
+    user := models.User {}
+    utils.GetLocals(c, "user", &user)
+
+    wallet := models.Wallet {}
+    err := wallet.Get(user.WalletID)
+    if err != nil {
+      return utils.MessageError(c, err.Error())
+    }
+
+    return c.JSON(user)
+  })
 
   signup(g)
 	login(g)

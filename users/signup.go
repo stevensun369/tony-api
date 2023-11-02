@@ -66,7 +66,7 @@ func signup(r fiber.Router) {
     hashedCode, err := db.Get(fmt.Sprintf("code:%v", body["phone"]))
 
     if err != nil {
-      return utils.MessageError(c, "Întoarceți-vă la pagina de conectare.")
+      return utils.MessageError(c, "Eroare interna. (CODE REDIS)")
     }
 
     // comparing hashed with provided code

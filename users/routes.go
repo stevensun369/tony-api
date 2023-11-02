@@ -57,6 +57,20 @@ func Routes(r fiber.Router) {
 		return c.JSON(bson.M{"token": token})
 	})
 	
+	// first checking if user exists, 
+	// to know what api handler to call 
+	// on the frontend app
+	g.Post("/check", func (c *fiber.Ctx) error {
+		phone := c.Query("phone")
+		return c.JSON(
+			models.UserCheck(
+				bson.M {
+					"phone": phone,
+				},
+			),
+		)
+	})
+
   signup(g)
 	login(g)
 }

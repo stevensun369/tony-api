@@ -7,7 +7,6 @@ import (
 
 	sj "github.com/brianvoe/sjwt"
 	"go.mongodb.org/mongo-driver/bson"
-	"golang.org/x/crypto/bcrypt"
 )
 
 type User struct {
@@ -15,7 +14,6 @@ type User struct {
   WalletID string `json:"wallet" bson:"wallet"`
   UserName string `json:"username" bson:"username"`
   Phone string `json:"phone" bson:"phone"`
-  Password string `json:"password" bson:"password"`
 }
 
 func (u *User) GenToken() (string, error) {
@@ -106,35 +104,4 @@ func (u *User) AddUsername(ID string, username string) (error) {
   u.UserName = username
 
   return nil
-}
-
-func (u *User) AddPassword(ID string, password string) error {
-  hashedPassword, err := bcrypt.GenerateFromPassword([]byte(password), 10)
-
-  if err != nil {
-    return err
-  }
-
-  err = db.Users.FindOneAndUpdate(
-    db.Ctx,
-    bson.M{
-      "ID": ID,
-    },
-    bson.M{
-      "$set": bson.M{
-        "password": string(hashedPassword),
-      },
-    },
-  ).Decode(&u)
-
-  return err
-}
-
-func (u *User) ComparePassword(password string) error {
-  if err := u.Get(bson.M{"phone": u.Phone}); err != nil {
-    return err;
-  }
-
-  err := bcrypt.CompareHashAndPassword([]byte(u.Password), []byte(password))
-  return err
 }

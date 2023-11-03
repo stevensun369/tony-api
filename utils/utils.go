@@ -20,15 +20,21 @@ func GenCode(s int) string {
   for i := 0; i < s; i++ {
     code += strconv.Itoa(rand.Intn(10));
   }
+
+  if (env.Dev) {
+    fmt.Println(code)
+  }
+
   return code
 }
 
 func GetToday() string {
   t := time.Now()
   return fmt.Sprintf("%v.%v.%v", 
-    t.Day(), 
-    int(t.Month()), 
-    t.Year())
+    addLeadingZero(t.Day()), 
+    addLeadingZero(int(t.Month())), 
+    addLeadingZero(t.Year()),
+  )
 }
 
 func addLeadingZero(s int) string {

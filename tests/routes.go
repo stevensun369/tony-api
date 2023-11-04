@@ -49,4 +49,14 @@ func Routes(r fiber.Router) {
     image := c.Query("image")
     return c.JSON(image)
   })
+
+  g.Post("/phone", func (c *fiber.Ctx) error {
+    err := utils.SendSMS("40723010405", "1779")
+    
+    if err != nil {
+      return utils.MessageError(c, err.Error())
+    }
+    
+    return c.JSON("ok")
+  })
 }

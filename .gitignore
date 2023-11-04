@@ -2,3 +2,5 @@
 env/env.go
 /tmp
 /files
+/deploy.sh
+/deploy

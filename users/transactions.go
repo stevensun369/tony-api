@@ -17,6 +17,9 @@ func transactions(r fiber.Router) {
     
     transactions, err := models.GetTransactions(bson.M {
       "to": user.WalletID,
+    }, bson.D{
+      {Key: "date", Value: -1}, 
+      {Key: "time", Value: -1},
     })
 
     if err != nil {

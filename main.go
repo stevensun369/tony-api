@@ -9,6 +9,7 @@ import (
 	"backend/storeadmins"
 	"backend/tests"
 	"backend/users"
+	"os"
 
 	"fmt"
 
@@ -17,6 +18,9 @@ import (
 )
 
 func main() {
+	os.Mkdir("files", os.ModePerm)
+	os.Mkdir("files/products", os.ModePerm)
+
 	app := fiber.New(fiber.Config {
 		Prefork: !env.Dev,
 		BodyLimit: 10 * 1024 * 1024,

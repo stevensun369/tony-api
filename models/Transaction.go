@@ -3,6 +3,8 @@ package models
 import (
 	"backend/db"
 	"errors"
+
+	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
 type Transaction struct {
@@ -46,10 +48,13 @@ func (t *Transaction) Create() error {
   return err
 }
 
-func GetTransactions(filter interface{}) ([]Transaction, error) {
+func GetTransactions(filter interface{}, sort interface {}) ([]Transaction, error) {
   transactions := []Transaction {}
 
-  cursor, err := db.Transactions.Find(db.Ctx, filter)
+  opts := options.Find().SetSort(sort)
+
+
+  cursor, err := db.Transactions.Find(db.Ctx, filter, opts)
   if err != nil {
     return transactions, err
   }

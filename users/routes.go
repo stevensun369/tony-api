@@ -1,6 +1,7 @@
 package users
 
 import (
+	"backend/env"
 	"backend/models"
 	"backend/utils"
 	"fmt"
@@ -59,6 +60,16 @@ func Routes(r fiber.Router) {
 	
 	g.Get("/check", func (c *fiber.Ctx) error {
 		phone := c.Query("phone")
+		// implenting the demo features
+		// for play store and appstore approval
+		if phone == env.DemoPhone {
+			return c.JSON(
+				bson.M {
+					"check": true,
+				},
+			)
+		}
+
 		check := models.UserCheck(
 			bson.M {
 				"phone": phone,

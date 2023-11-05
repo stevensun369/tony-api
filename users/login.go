@@ -23,6 +23,21 @@ func login(r fiber.Router) {
 
     phone := body["phone"]
 
+    if phone == env.DemoPhone {
+      // creating the token
+      user := models.User {}
+      err := user.Get(bson.M {"phone": env.DemoPhone})
+      if err != nil {
+        return utils.MessageError(c, err.Error())
+      }
+      token, err := user.GenToken()
+      if err != nil {
+        return utils.MessageError(c, err.Error())
+      }
+
+      return c.JSON(bson.M{"token": token, "user": user})
+    }
+
     // if user with phone does exist
     if (models.UserCheck(bson.M{"phone": phone})) {
       // gen a code

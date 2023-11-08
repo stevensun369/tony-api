@@ -55,7 +55,7 @@ func Routes(r fiber.Router) {
 			return utils.MessageError(c, err.Error())
 		}
 
-		return c.JSON(bson.M{"token": token})
+		return c.JSON(bson.M{"token": token, "user": user})
 	})
 	
 	g.Get("/check", func (c *fiber.Ctx) error {

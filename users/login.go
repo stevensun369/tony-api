@@ -24,6 +24,8 @@ func login(r fiber.Router) {
     phone := body["phone"]
 
     if phone == env.DemoPhone {
+      fmt.Println("demo login")
+
       // creating the token
       user := models.User {}
       err := user.Get(bson.M {"phone": env.DemoPhone})

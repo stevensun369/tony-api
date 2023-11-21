@@ -124,4 +124,23 @@ func signup(r fiber.Router) {
     // returning
     return c.JSON(bson.M{"token": token, "user": user})
   })
+
+  g.Delete("/", AuthMiddleware, func (c *fiber.Ctx) error {
+    ID := fmt.Sprintf("%v", c.Locals("ID"))
+
+    _, err := db.Users.UpdateOne(db.Ctx, bson.M {
+      "ID": ID,
+    }, bson.M {
+      "$set": bson.M {
+        "phone": "",
+        "username": "",
+      },
+    })
+
+    if err != nil {
+      return utils.MessageError(c, err.Error())
+    }
+
+    return c.JSON("ok")
+  })
 }

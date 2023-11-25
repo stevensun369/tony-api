@@ -11,9 +11,9 @@ import (
 )
 
 func StoreAdminMiddleware(c *fiber.Ctx) error {
-  token := c.Get("StoreAdminToken")
+	token := c.Get("StoreAdminToken")
 
-  if token == "" {
+	if token == "" {
 		return utils.MessageError(c, "no token")
 	}
 
@@ -22,26 +22,26 @@ func StoreAdminMiddleware(c *fiber.Ctx) error {
 		return utils.MessageError(c, err.Error())
 	}
 
-  c.Locals("storeID", storeAdmin.StoreID)
+	c.Locals("storeID", storeAdmin.StoreID)
 
-  return c.Next()
+	return c.Next()
 }
 
 func Routes(r fiber.Router) {
-  g := r.Group("/storeadmins")
+	g := r.Group("/storeadmins")
 
-  g.Get("/me", users.AuthMiddleware, StoreAdminMiddleware, func (c *fiber.Ctx) error {
-    return c.JSON(fmt.Sprintf("%v", c.Locals("storeID")))
-  })
+	g.Get("/me", users.AuthMiddleware, StoreAdminMiddleware, func(c *fiber.Ctx) error {
+		return c.JSON(fmt.Sprintf("%v", c.Locals("storeID")))
+	})
 
-  g.Post("/update", StoreAdminMiddleware, users.AuthMiddleware, func (c *fiber.Ctx) error {
-		user := models.User {}
-		storeAdmin := models.StoreAdmin {}
+	g.Post("/update", StoreAdminMiddleware, users.AuthMiddleware, func(c *fiber.Ctx) error {
+		user := models.User{}
+		storeAdmin := models.StoreAdmin{}
 		ID := fmt.Sprintf("%v", c.Locals("ID"))
 
 		// user
-		err := user.Get(bson.M {
-			"ID": ID, 
+		err := user.Get(bson.M{
+			"ID": ID,
 		})
 		if err != nil {
 			return utils.MessageError(c, err.Error())
@@ -62,14 +62,14 @@ func Routes(r fiber.Router) {
 		}
 
 		return c.JSON(bson.M{
-			"token": token, 
-			"storeAdminToken": storeAdminToken, 
-			"user": user, 
-			"storeAdmin": storeAdmin,
+			"token":           token,
+			"storeAdminToken": storeAdminToken,
+			"user":            user,
+			"storeAdmin":      storeAdmin,
 		})
 	})
 
-  signup(g)
-  login(g)
-  store(g)
+	signup(g)
+	login(g)
+	store(g)
 }

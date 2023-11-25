@@ -14,133 +14,133 @@ import (
 )
 
 func signup(r fiber.Router) {
-  g := r.Group("/signup")
+	g := r.Group("/signup")
 
-  g.Post("/phone", func (c *fiber.Ctx) error {
-    // getting body
-    var body map[string]string
-    json.Unmarshal(c.Body(), &body)
+	g.Post("/phone", func(c *fiber.Ctx) error {
+		// getting body
+		var body map[string]string
+		json.Unmarshal(c.Body(), &body)
 
-    phone := body["phone"]
+		phone := body["phone"]
 
-    // if user with phone doesn't exist
-    if (!models.UserCheck(bson.M{"phone": phone})) {
-      // gen a code
-      code := utils.GenCode(4)
+		// if user with phone doesn't exist
+		if (!models.UserCheck(bson.M{"phone": phone})) {
+			// gen a code
+			code := utils.GenCode(4)
 
-      // get it across
-      if (!env.Dev) { 
-        utils.SendSMS("+4" + phone, code) 
-      }
+			// get it across
+			if !env.Dev {
+				utils.SendSMS("+4"+phone, code)
+			}
 
-      // hash it
-      hashedCode, err := bcrypt.GenerateFromPassword([]byte(code), 10)
+			// hash it
+			hashedCode, err := bcrypt.GenerateFromPassword([]byte(code), 10)
 
-      // and set it on the db
-      db.Set("code:" + phone, string(hashedCode))
+			// and set it on the db
+			db.Set("code:"+phone, string(hashedCode))
 
-      if err != nil {
-        return utils.MessageError(c, "Eroare internă :((")
-      }
+			if err != nil {
+				return utils.MessageError(c, "Eroare internă :((")
+			}
 
-      // returning
-      if (env.Dev) { 
-        return c.JSON(bson.M{"code": code, "phone": phone})
-      } else { 
-        utils.SendSMS("+4" + phone, code) 
-      }
+			// returning
+			if env.Dev {
+				return c.JSON(bson.M{"code": code, "phone": phone})
+			} else {
+				utils.SendSMS("+4"+phone, code)
+			}
 
-      return c.Status(200).Send([]byte(""))
-    } else { // if user witn phone exists, err
-      return utils.MessageError(c, 
-        "Un utilizator cu acest număr de telefon există deja.")
-    }
-  })
+			return c.Status(200).Send([]byte(""))
+		} else { // if user witn phone exists, err
+			return utils.MessageError(c,
+				"Un utilizator cu acest număr de telefon există deja.")
+		}
+	})
 
-  g.Post("/code", func (c *fiber.Ctx) error {
-    // getting body
-    var body map[string]string
-    json.Unmarshal(c.Body(), &body)
+	g.Post("/code", func(c *fiber.Ctx) error {
+		// getting body
+		var body map[string]string
+		json.Unmarshal(c.Body(), &body)
 
-    // getting hashed code
-    hashedCode, err := db.Get(fmt.Sprintf("code:%v", body["phone"]))
+		// getting hashed code
+		hashedCode, err := db.Get(fmt.Sprintf("code:%v", body["phone"]))
 
-    if err != nil {
-      return utils.MessageError(c, "Eroare interna. (CODE REDIS)")
-    }
+		if err != nil {
+			return utils.MessageError(c, "Eroare interna. (CODE REDIS)")
+		}
 
-    // comparing hashed with provided code
-    compareErr := bcrypt.CompareHashAndPassword(
-      []byte(hashedCode),
-      []byte(body["code"]),
-    )
+		// comparing hashed with provided code
+		compareErr := bcrypt.CompareHashAndPassword(
+			[]byte(hashedCode),
+			[]byte(body["code"]),
+		)
 
-    // if the code is wrong, err
-    if compareErr != nil {
-      return utils.MessageError(c, "Codul este greșit")
-    }
-    
-    // deleting the code from caches
-    db.Del(fmt.Sprintf("code:%v", body["phone"]))
+		// if the code is wrong, err
+		if compareErr != nil {
+			return utils.MessageError(c, "Codul este greșit")
+		}
 
-    // build & save a user
-    user := models.User {}
-    user.Create(body["phone"])
+		// deleting the code from caches
+		db.Del(fmt.Sprintf("code:%v", body["phone"]))
 
-    // get a token
-    token, err := user.GenToken()
-  
-    if err != nil {
-      return utils.MessageError(c, err.Error())
-    }
+		// build & save a user
+		user := models.User{}
+		user.Create(body["phone"])
 
-    return c.JSON(bson.M{
-      "token": token,
-    })
-  })
+		// get a token
+		token, err := user.GenToken()
 
-  g.Post("/username", AuthMiddleware, func (c *fiber.Ctx) error {
-    ID := fmt.Sprintf("%v", c.Locals("ID"))
-    
-    // getting body
-    var body map[string]string
-    json.Unmarshal(c.Body(), &body)
-    username := body["username"]
+		if err != nil {
+			return utils.MessageError(c, err.Error())
+		}
 
-    user := models.User{}
+		return c.JSON(bson.M{
+			"token": token,
+		})
+	})
 
-    // adding username
-    err := user.AddUsername(ID, username)
-    if err != nil {
-      return utils.MessageError(c, err.Error())
-    }
-    
-    // generating token
-    token, err := user.GenToken()
-    if err != nil {
-      return utils.MessageError(c, err.Error())
-    }
+	g.Post("/username", AuthMiddleware, func(c *fiber.Ctx) error {
+		ID := fmt.Sprintf("%v", c.Locals("ID"))
 
-    // returning
-    return c.JSON(bson.M{"token": token, "user": user})
-  })
+		// getting body
+		var body map[string]string
+		json.Unmarshal(c.Body(), &body)
+		username := body["username"]
 
-  g.Delete("/", AuthMiddleware, func (c *fiber.Ctx) error {
-    ID := fmt.Sprintf("%v", c.Locals("ID"))
+		user := models.User{}
 
-    _, err := db.Users.UpdateOne(db.Ctx, bson.M {
-      "ID": ID,
-    }, bson.M {
-      "$set": bson.M {
-        "phone": "",
-        "username": "",
-      },
-    })
+		// adding username
+		err := user.AddUsername(ID, username)
+		if err != nil {
+			return utils.MessageError(c, err.Error())
+		}
 
-    if err != nil {
-      return utils.MessageError(c, err.Error())
-    }
+		// generating token
+		token, err := user.GenToken()
+		if err != nil {
+			return utils.MessageError(c, err.Error())
+		}
 
-    return c.JSON("ok")
-  })
+		// returning
+		return c.JSON(bson.M{"token": token, "user": user})
+	})
+
+	g.Delete("/", AuthMiddleware, func(c *fiber.Ctx) error {
+		ID := fmt.Sprintf("%v", c.Locals("ID"))
+
+		_, err := db.Users.UpdateOne(db.Ctx, bson.M{
+			"ID": ID,
+		}, bson.M{
+			"$set": bson.M{
+				"phone":    "",
+				"username": "",
+			},
+		})
+
+		if err != nil {
+			return utils.MessageError(c, err.Error())
+		}
+
+		return c.JSON("ok")
+	})
 }

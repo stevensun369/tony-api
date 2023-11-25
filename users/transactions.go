@@ -9,23 +9,23 @@ import (
 )
 
 func transactions(r fiber.Router) {
-  g := r.Group("/transactions")
+	g := r.Group("/transactions")
 
-  g.Get("/", AuthMiddleware, func (c *fiber.Ctx) error {
-    user := models.User {}
-    utils.GetLocals(c, "user", &user)
-    
-    transactions, err := models.GetTransactions(bson.M {
-      "to": user.WalletID,
-    }, bson.D{
-      {Key: "date", Value: -1}, 
-      {Key: "time", Value: -1},
-    })
+	g.Get("/", AuthMiddleware, func(c *fiber.Ctx) error {
+		user := models.User{}
+		utils.GetLocals(c, "user", &user)
 
-    if err != nil {
-      return utils.MessageError(c, err.Error())
-    }
+		transactions, err := models.GetTransactions(bson.M{
+			"to": user.WalletID,
+		}, bson.D{
+			{Key: "date", Value: -1},
+			{Key: "time", Value: -1},
+		})
 
-    return c.JSON(transactions)
-  })
+		if err != nil {
+			return utils.MessageError(c, err.Error())
+		}
+
+		return c.JSON(transactions)
+	})
 }

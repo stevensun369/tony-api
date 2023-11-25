@@ -11,44 +11,44 @@ import (
 )
 
 func store(r fiber.Router) {
-  g := r.Group("/store")
+	g := r.Group("/store")
 
-  g.Get("/", users.AuthMiddleware, StoreAdminMiddleware, func (c *fiber.Ctx) error {
-    storeID := fmt.Sprintf("%v", c.Locals("storeID"))
+	g.Get("/", users.AuthMiddleware, StoreAdminMiddleware, func(c *fiber.Ctx) error {
+		storeID := fmt.Sprintf("%v", c.Locals("storeID"))
 
-    s := models.Store{}
-    s.Get(storeID)
+		s := models.Store{}
+		s.Get(storeID)
 
-    return c.JSON(s)
-  })
+		return c.JSON(s)
+	})
 
-  g.Post("/name", users.AuthMiddleware, StoreAdminMiddleware, func (c *fiber.Ctx) error {
-    var body map[string]string
-    json.Unmarshal(c.Body(), &body)
+	g.Post("/name", users.AuthMiddleware, StoreAdminMiddleware, func(c *fiber.Ctx) error {
+		var body map[string]string
+		json.Unmarshal(c.Body(), &body)
 
-    storeID := fmt.Sprintf("%v", c.Locals("storeID"))
+		storeID := fmt.Sprintf("%v", c.Locals("storeID"))
 
-    s := models.Store{}
+		s := models.Store{}
 
-    if err := s.ChangeName(storeID, body["name"]); err != nil {
-      return utils.MessageError(c, err.Error())
-    }
+		if err := s.ChangeName(storeID, body["name"]); err != nil {
+			return utils.MessageError(c, err.Error())
+		}
 
-    return c.JSON(s)
-  })
+		return c.JSON(s)
+	})
 
-  g.Post("/open", users.AuthMiddleware, StoreAdminMiddleware, func (c *fiber.Ctx) error {
-    var body map[string]string
-    json.Unmarshal(c.Body(), &body)
+	g.Post("/open", users.AuthMiddleware, StoreAdminMiddleware, func(c *fiber.Ctx) error {
+		var body map[string]string
+		json.Unmarshal(c.Body(), &body)
 
-    storeID := fmt.Sprintf("%v", c.Locals("storeID"))
+		storeID := fmt.Sprintf("%v", c.Locals("storeID"))
 
-    s := models.Store{}
+		s := models.Store{}
 
-    if err := s.ChangeOpen(storeID, body["open"]); err != nil {
-      return utils.MessageError(c, err.Error())
-    }
+		if err := s.ChangeOpen(storeID, body["open"]); err != nil {
+			return utils.MessageError(c, err.Error())
+		}
 
-    return c.JSON(s)
-  })
+		return c.JSON(s)
+	})
 }

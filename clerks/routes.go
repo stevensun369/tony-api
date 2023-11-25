@@ -11,9 +11,9 @@ import (
 )
 
 func ClerkMiddleware(c *fiber.Ctx) error {
-  token := c.Get("ClerkToken")
+	token := c.Get("ClerkToken")
 
-  if token == "" {
+	if token == "" {
 		return utils.MessageError(c, "no token")
 	}
 
@@ -22,26 +22,26 @@ func ClerkMiddleware(c *fiber.Ctx) error {
 		return utils.MessageError(c, err.Error())
 	}
 
-  c.Locals("storeID", clerk.StoreID)
+	c.Locals("storeID", clerk.StoreID)
 
-  return c.Next()
+	return c.Next()
 }
 
 func Routes(r fiber.Router) {
-  g := r.Group("/clerks")
+	g := r.Group("/clerks")
 
-  g.Get("/me", users.AuthMiddleware, ClerkMiddleware, func (c *fiber.Ctx) error {
-    return c.JSON(fmt.Sprintf("%v", c.Locals("storeID")))
-  })
+	g.Get("/me", users.AuthMiddleware, ClerkMiddleware, func(c *fiber.Ctx) error {
+		return c.JSON(fmt.Sprintf("%v", c.Locals("storeID")))
+	})
 
-	g.Post("/update", ClerkMiddleware, users.AuthMiddleware, func (c *fiber.Ctx) error {
-		user := models.User {}
-		clerk := models.Clerk {}
+	g.Post("/update", ClerkMiddleware, users.AuthMiddleware, func(c *fiber.Ctx) error {
+		user := models.User{}
+		clerk := models.Clerk{}
 		ID := fmt.Sprintf("%v", c.Locals("ID"))
 
 		// user
-		err := user.Get(bson.M {
-			"ID": ID, 
+		err := user.Get(bson.M{
+			"ID": ID,
 		})
 		if err != nil {
 			return utils.MessageError(c, err.Error())
@@ -62,10 +62,10 @@ func Routes(r fiber.Router) {
 		}
 
 		return c.JSON(bson.M{
-			"token": token, 
+			"token":      token,
 			"clerkToken": clerkToken,
-			"user": user,
-			"clerk": clerk,
+			"user":       user,
+			"clerk":      clerk,
 		})
 	})
 
@@ -81,6 +81,6 @@ func Routes(r fiber.Router) {
 		return c.JSON(store)
 	})
 
-  signup(g)
-  login(g)
+	signup(g)
+	login(g)
 }

@@ -10,90 +10,89 @@ import (
 )
 
 type Clerk struct {
-  ID string `json:"ID" bson:"ID"`
-  StoreID string `json:"storeID" bson:"storeID"`
+	ID      string `json:"ID" bson:"ID"`
+	StoreID string `json:"storeID" bson:"storeID"`
 }
 
 func (sa *Clerk) GenToken() (string, error) {
-  claims, err := sj.ToClaims(&sa)
-  claims.SetExpiresAt(expirationTime)
+	claims, err := sj.ToClaims(&sa)
+	claims.SetExpiresAt(expirationTime)
 
-  token := claims.Generate(env.JWTKey)
-  return token, err
+	token := claims.Generate(env.JWTKey)
+	return token, err
 }
 
 func (sa *Clerk) ParseToken(token string) error {
-  verified := sj.Verify(token, []byte(env.JWTKey))
+	verified := sj.Verify(token, []byte(env.JWTKey))
 
-  if !verified {
-    return nil
-  }
+	if !verified {
+		return nil
+	}
 
-  claims, err := sj.Parse(token)
-  if err != nil {
-    return err
-  }
+	claims, err := sj.Parse(token)
+	if err != nil {
+		return err
+	}
 
-  err = claims.Validate()
-  if err != nil {
-    return err
-  }
-  err = claims.ToStruct(&sa)
+	err = claims.Validate()
+	if err != nil {
+		return err
+	}
+	err = claims.ToStruct(&sa)
 
-  return err
-} 
-
+	return err
+}
 
 func (sa *Clerk) Create(ID string) error {
-  if !UserCheck(bson.M {"ID": ID}) {
-    return errors.New("nu există utilizator")
-  }
+	if !UserCheck(bson.M{"ID": ID}) {
+		return errors.New("nu există utilizator")
+	}
 
-  sa.ID = ID
+	sa.ID = ID
 
-  _, err := db.Clerks.InsertOne(db.Ctx, &sa)
+	_, err := db.Clerks.InsertOne(db.Ctx, &sa)
 
-  return err
+	return err
 }
 
 func (sa *Clerk) Get(ID string) error {
-  err := db.Clerks.FindOne(db.Ctx, 
-    bson.M {
-      "ID": ID,
-    },
-  ).Decode(&sa)
+	err := db.Clerks.FindOne(db.Ctx,
+		bson.M{
+			"ID": ID,
+		},
+	).Decode(&sa)
 
-  return err
+	return err
 }
 
 func (sa *Clerk) Check(ID string) bool {
-  err := sa.Get(ID)
+	err := sa.Get(ID)
 
-  if err == nil {
-    return true
-  } else {
-    return false
-  }
+	if err == nil {
+		return true
+	} else {
+		return false
+	}
 }
 
 func (sa *Clerk) AddStore(ID string, storeID string) error {
-  s := Store {}
+	s := Store{}
 
-  if !s.Check(storeID) {
-    return errors.New("nu există vânzătorul")
-  }
+	if !s.Check(storeID) {
+		return errors.New("nu există vânzătorul")
+	}
 
-  err := db.Clerks.FindOneAndUpdate(
-    db.Ctx,
-    bson.M {
-      "ID": ID,
-    },
-    bson.M {
-      "storeID": storeID,
-    },
-  ).Decode(&sa)
+	err := db.Clerks.FindOneAndUpdate(
+		db.Ctx,
+		bson.M{
+			"ID": ID,
+		},
+		bson.M{
+			"storeID": storeID,
+		},
+	).Decode(&sa)
 
-  sa.StoreID = storeID
+	sa.StoreID = storeID
 
-  return err
+	return err
 }

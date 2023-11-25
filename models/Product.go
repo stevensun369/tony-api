@@ -7,265 +7,264 @@ import (
 )
 
 type Product struct {
-  ID string `json:"ID" bson:"ID"`
-  StoreID string `json:"storeID" bson:"storeID"`
-  Title string `json:"title" bson:"title"`
-  Desc string `json:"desc" bson:"desc"`
-  Tags []string `json:"tags" bson:"tags"`
-  Variants map[string][]ProductVariant `json:"variants" bson:"variants"`
-  Options map[string][]ProductOption `json:"options" bson:"options"`
-  Price int `json:"price" bson:"price"`
-  Stock bool `json:"stock" bson:"stock"`
+	ID       string                      `json:"ID" bson:"ID"`
+	StoreID  string                      `json:"storeID" bson:"storeID"`
+	Title    string                      `json:"title" bson:"title"`
+	Desc     string                      `json:"desc" bson:"desc"`
+	Tags     []string                    `json:"tags" bson:"tags"`
+	Variants map[string][]ProductVariant `json:"variants" bson:"variants"`
+	Options  map[string][]ProductOption  `json:"options" bson:"options"`
+	Price    int                         `json:"price" bson:"price"`
+	Stock    bool                        `json:"stock" bson:"stock"`
 }
 
 type ProductOption struct {
-  Option string `json:"option" bson:"option"`
-  Stock bool `json:"stock" bson:"stock"`
+	Option string `json:"option" bson:"option"`
+	Stock  bool   `json:"stock" bson:"stock"`
 }
 
 type ProductVariant struct {
-  Variant string `json:"variant" bson:"variant"`
-  Stock bool `json:"stock" bson:"stock"`
-  Price int `json:"price" bson:"price"`
+	Variant string `json:"variant" bson:"variant"`
+	Stock   bool   `json:"stock" bson:"stock"`
+	Price   int    `json:"price" bson:"price"`
 }
 
 func (p *Product) Create() error {
-  p.ID = GenID(6)
-  p.Stock = true
+	p.ID = GenID(6)
+	p.Stock = true
 
-  p.Tags = []string {}
-  p.Variants = map[string][]ProductVariant {}
-  p.Options = map[string][]ProductOption {}
+	p.Tags = []string{}
+	p.Variants = map[string][]ProductVariant{}
+	p.Options = map[string][]ProductOption{}
 
-  _, err := db.Products.InsertOne(db.Ctx, p)
-  if err != nil {
-    return err
-  }
+	_, err := db.Products.InsertOne(db.Ctx, p)
+	if err != nil {
+		return err
+	}
 
-  return nil
+	return nil
 }
 
 func (p *Product) Get(ID string) error {
-  return db.Products.FindOne(
-    db.Ctx,
-    bson.M {
-      "ID": ID,
-    },
-  ).Decode(&p)
+	return db.Products.FindOne(
+		db.Ctx,
+		bson.M{
+			"ID": ID,
+		},
+	).Decode(&p)
 }
 
-func GetProducts(filter interface {}) ([]Product, error) {
-  products := []Product {}
+func GetProducts(filter interface{}) ([]Product, error) {
+	products := []Product{}
 
-  cursor, err := db.Products.Find(db.Ctx, filter)
-  if err != nil {
-    return []Product{}, err
-  }
-  err = cursor.All(db.Ctx, &products)
-  
-  return products, err
+	cursor, err := db.Products.Find(db.Ctx, filter)
+	if err != nil {
+		return []Product{}, err
+	}
+	err = cursor.All(db.Ctx, &products)
+
+	return products, err
 }
 
 func (p *Product) UpdateField(ID string, fieldName string, value interface{}) error {
-  _, err := db.Products.UpdateOne(
-    db.Ctx,
-    bson.M {
-      "ID": ID,
-    },
-    bson.M {
-      "$set": bson.M {
-        fieldName: value,
-      },
-    },
-  )
+	_, err := db.Products.UpdateOne(
+		db.Ctx,
+		bson.M{
+			"ID": ID,
+		},
+		bson.M{
+			"$set": bson.M{
+				fieldName: value,
+			},
+		},
+	)
 
-  return err
+	return err
 }
 
 func (p *Product) AddTag(ID string, tag string) error {
-  p.Get(ID)
+	p.Get(ID)
 
-  p.Tags = append(p.Tags, tag)
+	p.Tags = append(p.Tags, tag)
 
-  err := p.UpdateField(ID, "tags", p.Tags)
+	err := p.UpdateField(ID, "tags", p.Tags)
 
-  return err
+	return err
 }
 
 func (p *Product) RemoveTag(ID string, tag string) error {
-  p.Get(ID)
+	p.Get(ID)
 
-  tags := []string{}
+	tags := []string{}
 
-  for _, v := range p.Tags {
-    if v != tag {
-      tags = append(tags, v)
-    }
-  }
+	for _, v := range p.Tags {
+		if v != tag {
+			tags = append(tags, v)
+		}
+	}
 
-  p.Tags = tags
+	p.Tags = tags
 
-  err := p.UpdateField(ID, "tags", p.Tags)
+	err := p.UpdateField(ID, "tags", p.Tags)
 
-  return err
+	return err
 }
 
 func (p *Product) CreateVariantKey(ID string, key string) error {
-  p.Get(ID)
+	p.Get(ID)
 
-  p.Variants[key] = []ProductVariant{}
+	p.Variants[key] = []ProductVariant{}
 
-  err := p.UpdateField(ID, "variants", p.Variants)
+	err := p.UpdateField(ID, "variants", p.Variants)
 
-  return err
+	return err
 }
 
 func (p *Product) RemoveVariantKey(ID string, key string) error {
-  p.Get(ID)
+	p.Get(ID)
 
-  variants := map[string][]ProductVariant{}
+	variants := map[string][]ProductVariant{}
 
-  for k := range p.Variants {
-    if k != key {
-      variants[k] = p.Variants[k]
-    }
-  }
+	for k := range p.Variants {
+		if k != key {
+			variants[k] = p.Variants[k]
+		}
+	}
 
-  p.Variants = variants
+	p.Variants = variants
 
-  err := p.UpdateField(ID, "variants", p.Variants)
+	err := p.UpdateField(ID, "variants", p.Variants)
 
-  return err
+	return err
 }
 
 func (p *Product) AddVariant(ID string, key string, variant ProductVariant) error {
-  // getting the product
-  p.Get(ID)
+	// getting the product
+	p.Get(ID)
 
-  // adding to the variants of a key
-  p.Variants[key] = append(p.Variants[key], variant)
+	// adding to the variants of a key
+	p.Variants[key] = append(p.Variants[key], variant)
 
-  // updating on the db
-  err := p.UpdateField(ID, "variants", p.Variants)
+	// updating on the db
+	err := p.UpdateField(ID, "variants", p.Variants)
 
-  return err
+	return err
 }
 
 func (p *Product) RemoveVariant(ID string, key string, variant string) error {
-  // getting the product
-  p.Get(ID)
+	// getting the product
+	p.Get(ID)
 
-  variants := []ProductVariant{}
+	variants := []ProductVariant{}
 
-  // adding only the variants that are not equal to the variant
-  for _, v := range p.Variants[key] {
-    if v.Variant != variant {
-      variants = append(variants, v)
-    }
-  }
+	// adding only the variants that are not equal to the variant
+	for _, v := range p.Variants[key] {
+		if v.Variant != variant {
+			variants = append(variants, v)
+		}
+	}
 
-  p.Variants[key] = variants
+	p.Variants[key] = variants
 
-  // updating on the db
-  err := p.UpdateField(ID, "variants", p.Variants)
+	// updating on the db
+	err := p.UpdateField(ID, "variants", p.Variants)
 
-  return err
+	return err
 }
 
 func (p *Product) ChangeVariant(ID string, key string, variant ProductVariant) error {
-  // getting the product
-  p.Get(ID)
+	// getting the product
+	p.Get(ID)
 
-  // changing the variant that has the same .Variant
-  for i := range p.Variants[key] {
-    if p.Variants[key][i].Variant == variant.Variant {
-      p.Variants[key][i] = variant
-    }
-  }
+	// changing the variant that has the same .Variant
+	for i := range p.Variants[key] {
+		if p.Variants[key][i].Variant == variant.Variant {
+			p.Variants[key][i] = variant
+		}
+	}
 
-  // updating on the db
-  err := p.UpdateField(ID, "variants", p.Variants)
+	// updating on the db
+	err := p.UpdateField(ID, "variants", p.Variants)
 
-  return err
+	return err
 }
 
 func (p *Product) CreateOptionKey(ID string, key string) error {
-  p.Get(ID)
+	p.Get(ID)
 
-  p.Options[key] = []ProductOption{}
+	p.Options[key] = []ProductOption{}
 
-  err := p.UpdateField(ID, "options", p.Options)
+	err := p.UpdateField(ID, "options", p.Options)
 
-  return err
+	return err
 }
 
 func (p *Product) RemoveOptionKey(ID string, key string) error {
-  p.Get(ID)
+	p.Get(ID)
 
-  options := map[string][]ProductOption{}
+	options := map[string][]ProductOption{}
 
-  for k := range p.Options {
-    if k != key {
-      options[k] = p.Options[k]
-    }
-  }
+	for k := range p.Options {
+		if k != key {
+			options[k] = p.Options[k]
+		}
+	}
 
-  p.Options = options
+	p.Options = options
 
-  err := p.UpdateField(ID, "options", p.Options)
+	err := p.UpdateField(ID, "options", p.Options)
 
-  return err
+	return err
 }
 
-
 func (p *Product) AddOption(ID string, key string, option ProductOption) error {
-  // getting the product
-  p.Get(ID)
+	// getting the product
+	p.Get(ID)
 
-  // adding to the options of a key
-  p.Options[key] = append(p.Options[key], option)
+	// adding to the options of a key
+	p.Options[key] = append(p.Options[key], option)
 
-  // updating on the db
-  err := p.UpdateField(ID, "options", p.Options)
+	// updating on the db
+	err := p.UpdateField(ID, "options", p.Options)
 
-  // return nil
-  return err
+	// return nil
+	return err
 }
 
 func (p *Product) RemoveOption(ID string, key string, option string) error {
-  // getting the product
-  p.Get(ID)
+	// getting the product
+	p.Get(ID)
 
-  options := []ProductOption{}
+	options := []ProductOption{}
 
-  // adding only the options that are not equal to the option
-  for _, v := range p.Options[key] {
-    if v.Option != option {
-      options = append(options, v)
-    }
-  }
+	// adding only the options that are not equal to the option
+	for _, v := range p.Options[key] {
+		if v.Option != option {
+			options = append(options, v)
+		}
+	}
 
-  p.Options[key] = options
+	p.Options[key] = options
 
-  // updating on the db
-  err := p.UpdateField(ID, "options", p.Options)
+	// updating on the db
+	err := p.UpdateField(ID, "options", p.Options)
 
-  return err
+	return err
 }
 
 func (p *Product) ChangeOption(ID string, key string, option ProductOption) error {
-  // getting the product
-  p.Get(ID)
+	// getting the product
+	p.Get(ID)
 
-  // changing the option that has the same .Option
-  for i := range p.Options[key] {
-    if p.Options[key][i].Option == option.Option {
-      p.Options[key][i] = option
-    }
-  }
+	// changing the option that has the same .Option
+	for i := range p.Options[key] {
+		if p.Options[key][i].Option == option.Option {
+			p.Options[key][i] = option
+		}
+	}
 
-  // updating on the db
-  err := p.UpdateField(ID, "options", p.Options)
+	// updating on the db
+	err := p.UpdateField(ID, "options", p.Options)
 
-  return err
+	return err
 }

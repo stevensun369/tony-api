@@ -11,22 +11,22 @@ import (
 )
 
 func login(r fiber.Router) {
-  g := r.Group("/login")
+	g := r.Group("/login")
 
-  g.Post("/", users.AuthMiddleware, func (c *fiber.Ctx) error {
-    // getting user ID
-    ID := fmt.Sprintf("%v", c.Locals("ID"))
+	g.Post("/", users.AuthMiddleware, func(c *fiber.Ctx) error {
+		// getting user ID
+		ID := fmt.Sprintf("%v", c.Locals("ID"))
 
-    // creating the storeAdmin
-    clerk := models.Clerk{}
-    clerk.Get(ID)
+		// creating the storeAdmin
+		clerk := models.Clerk{}
+		clerk.Get(ID)
 
-    // getting storeAdmin token
-    token, err := clerk.GenToken()
-    if err != nil {
-      return utils.MessageError(c, err.Error())
-    }
+		// getting storeAdmin token
+		token, err := clerk.GenToken()
+		if err != nil {
+			return utils.MessageError(c, err.Error())
+		}
 
-    return c.JSON(bson.M{"clerkToken": token, "clerk": clerk})
-  })
+		return c.JSON(bson.M{"clerkToken": token, "clerk": clerk})
+	})
 }

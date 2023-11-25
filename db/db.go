@@ -27,62 +27,62 @@ var Orders *mongo.Collection
 
 var Transactions *mongo.Collection
 
-func GetCollection(col string, client *mongo.Client) (*mongo.Collection) {
-  return client.Database("dev").Collection(col)
+func GetCollection(col string, client *mongo.Client) *mongo.Collection {
+	return client.Database("dev").Collection(col)
 }
 
 func InitDB(MongoURI string) {
-  var err error
+	var err error
 
-  MongoClient, err = mongo.Connect(
-    context.Background(),
-    options.Client().ApplyURI(MongoURI),
-  )
+	MongoClient, err = mongo.Connect(
+		context.Background(),
+		options.Client().ApplyURI(MongoURI),
+	)
 
-  if err != nil {
-    log.Fatal(err)
-  }
+	if err != nil {
+		log.Fatal(err)
+	}
 
-  Users = GetCollection("users", MongoClient)
-  Wallets = GetCollection("wallets", MongoClient)
+	Users = GetCollection("users", MongoClient)
+	Wallets = GetCollection("wallets", MongoClient)
 
-  Stores = GetCollection("stores", MongoClient)
-  StoreAdmins = GetCollection("storeAdmins", MongoClient)
-  Clerks = GetCollection("clerks", MongoClient)
-  
-  Products = GetCollection("products", MongoClient)
-  Orders = GetCollection("orders", MongoClient)
+	Stores = GetCollection("stores", MongoClient)
+	StoreAdmins = GetCollection("storeAdmins", MongoClient)
+	Clerks = GetCollection("clerks", MongoClient)
 
-  Transactions = GetCollection("transactions", MongoClient)
+	Products = GetCollection("products", MongoClient)
+	Orders = GetCollection("orders", MongoClient)
 
-  fmt.Println("connected to MongoDB")
+	Transactions = GetCollection("transactions", MongoClient)
+
+	fmt.Println("connected to MongoDB")
 }
 
 func InitCache(RedisOptions *redis.Options) {
-  RedisClient = redis.NewClient(RedisOptions)
+	RedisClient = redis.NewClient(RedisOptions)
 
-  pong, _ := RedisClient.Ping(Ctx).Result()
-  if pong == "PONG" {
-    fmt.Println("connected to Redis")
-  } else {
-    fmt.Println("not connected to redis")
-  }
+	pong, _ := RedisClient.Ping(Ctx).Result()
+	if pong == "PONG" {
+		fmt.Println("connected to Redis")
+	} else {
+		fmt.Println("not connected to redis")
+	}
 }
 
 func Set(key string, value string) error {
-  err := RedisClient.Set(Ctx, key, value, 0).Err()
+	err := RedisClient.Set(Ctx, key, value, 0).Err()
 
-  return err
+	return err
 }
 
 func Get(key string) (string, error) {
-  val, err := RedisClient.Get(Ctx, key).Result()
+	val, err := RedisClient.Get(Ctx, key).Result()
 
-  return val, err
+	return val, err
 }
 
 func Del(key string) error {
-  _, err := RedisClient.Del(Ctx, key).Result()
+	_, err := RedisClient.Del(Ctx, key).Result()
 
-  return err
+	return err
 }
